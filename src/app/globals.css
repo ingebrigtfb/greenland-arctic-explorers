@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-arctic-navy: #0D1B2A;
+  --color-arctic-navy: #1C4859;
   --color-glacier: #1B4965;
   --color-polar-teal: #2E8BA7;
   --color-ice-blue: #5FA8D3;
@@ -20,6 +20,10 @@
   --color-arctic-orange-hover: #E55A30;
   --color-aurora-green: #10B981;
   --color-alert-red: #EF4444;
+
+  /* Dedicated header accent + glow for header */
+  --color-header-accent: #0E0B26;
+  --color-header-glow: #1C4859;
 
   --font-heading: "Montserrat", system-ui, sans-serif;
   --font-display: "Sora", system-ui, sans-serif;
@@ -81,6 +85,25 @@ body {
   font-family: var(--font-body);
   color: var(--color-charcoal);
   background: #ffffff;
+}
+
+.header-gradient {
+  position: relative;
+  overflow: hidden;
+}
+
+.header-gradient::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      circle at 0% 100%,
+      color-mix(in srgb, var(--color-header-glow) 45%, transparent),
+      transparent 55%
+    );
+  mix-blend-mode: screen;
+  pointer-events: none;
 }
 
 :focus-visible {
