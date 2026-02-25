@@ -34,10 +34,10 @@ export default function Hero() {
 
         <div className="mt-10 flex justify-center lg:mt-0 lg:ml-12">
           <Image
-            src="/greenland_white.png"
+            src="/greenland_white_outline.png"
             alt="Stylized map of Greenland"
-            width={420}
-            height={420}
+            width={300}
+            height={300}
             className="h-auto w-[260px] drop-shadow-xl lg:w-[340px]"
           />
         </div>
