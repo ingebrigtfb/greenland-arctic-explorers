@@ -26,7 +26,7 @@ export default function CTASection() {
     >
       <div className="absolute inset-0">
         <Image
-          src="/CTAImageSection.JPG"
+          src="/CTAImageSection.JPEG"
           alt="Greenland Arctic landscape"
           fill
           className="object-cover"
