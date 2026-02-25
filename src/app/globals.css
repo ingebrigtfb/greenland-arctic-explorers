@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-arctic-navy: #0D1B2A;
+  --color-glacier: #1B4965;
+  --color-polar-teal: #2E8BA7;
+  --color-ice-blue: #5FA8D3;
+  --color-ice-blue-hover: #4A9BC7;
+  --color-frost: #CAE9FF;
+  --color-frost-light: #E8F4FF;
+
+  --color-snow: #F9FAFB;
+  --color-ice-gray: #F5F7F9;
+  --color-charcoal: #333333;
+  --color-stone: #4A4A4A;
+  --color-granite: #6B7280;
+  --color-mist: #E5E7EB;
+
+  --color-arctic-orange: #FF6E40;
+  --color-arctic-orange-hover: #E55A30;
+  --color-aurora-green: #10B981;
+  --color-alert-red: #EF4444;
+
+  --font-heading: "Montserrat", system-ui, sans-serif;
+  --font-display: "Sora", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+
+  --animate-fade-in-up: fade-in-up 0.6s ease-out forwards;
+  --animate-fade-in: fade-in 0.5s ease-out forwards;
+  --animate-slide-in-left: slide-in-left 0.6s ease-out forwards;
+  --animate-slide-in-right: slide-in-right 0.6s ease-out forwards;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-charcoal);
+  background: #ffffff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-ice-blue);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}
