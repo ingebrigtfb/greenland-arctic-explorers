@@ -42,7 +42,7 @@ export default function Header() {
         <div
           className={`relative mx-auto flex h-20 max-w-6xl items-center justify-between overflow-hidden rounded-2xl px-12 transition-all duration-500 lg:h-24 lg:justify-center ${
             scrolled
-              ? "bg-arctic-navy shadow-[0_4px_30px_rgba(13,27,42,0.25)] backdrop-blur-md"
+              ? "header-gradient bg-arctic-navy shadow-[0_4px_30px_rgba(13,27,42,0.25)] backdrop-blur-md"
               : "bg-transparent"
           }`}
         >
