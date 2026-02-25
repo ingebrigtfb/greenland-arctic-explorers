@@ -35,7 +35,7 @@ export default function Hero() {
             alt="Stylized map of Greenland"
             width={420}
             height={420}
-            className="h-auto w-[260px] drop-shadow-[0_4px_20px_rgba(0,0,0,0.45)] lg:w-[340px]"
+            className="h-auto w-[260px] opacity-60 drop-shadow-[0_4px_20px_rgba(0,0,0,0.45)] lg:w-[340px]"
           />
         </div>
       </div>
