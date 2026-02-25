@@ -4,33 +4,33 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
-const tours = [
+const lodges = [
   {
     image:
-      "https://images.unsplash.com/photo-1504233529578-6d46baba6d34?auto=format&fit=crop&w=800&q=80",
-    badge: "5 Days",
-    title: "Glacier Expedition",
+      "https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&w=800&q=80",
+    badge: "Sleeps 6",
+    title: "Icefjord Cabin",
     description:
-      "Trek across ancient ice formations in the Ilulissat Icefjord, a UNESCO World Heritage site.",
-    price: "From $2,495",
+      "A cosy timber lodge overlooking the Ilulissat Icefjord with panoramic views of calving glaciers.",
+    price: "$320 / night",
   },
   {
     image:
-      "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=800&q=80",
-    badge: "3 Nights",
-    title: "Northern Lights Chase",
+      "https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=800&q=80",
+    badge: "Sleeps 4",
+    title: "Aurora Dome",
     description:
-      "Witness the aurora borealis from remote Arctic camps with expert guides and premium comfort.",
-    price: "From $1,895",
+      "A glass-roofed geodesic dome designed for northern lights viewing from the warmth of your bed.",
+    price: "$410 / night",
   },
   {
     image:
-      "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80",
-    badge: "7 Days",
-    title: "Fjord Kayaking",
+      "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=800&q=80",
+    badge: "Sleeps 8",
+    title: "Fjord Lodge",
     description:
-      "Paddle through crystalline Arctic waters alongside towering icebergs and remote settlements.",
-    price: "From $3,295",
+      "A spacious waterfront lodge with a private sauna, kayak dock, and mountain-ringed fjord access.",
+    price: "$475 / night",
   },
 ];
 
@@ -51,7 +51,7 @@ export default function FeaturedTours() {
 
   return (
     <section
-      id="expeditions"
+      id="lodges"
       ref={sectionRef}
       className="bg-white py-20 lg:py-28"
     >
@@ -59,18 +59,18 @@ export default function FeaturedTours() {
         {/* Section header */}
         <div className="mb-12 text-center">
           <p className="mb-3 font-heading text-xs font-600 uppercase tracking-[0.15em] text-polar-teal">
-            Signature Experiences
+            Stay in the Wild
           </p>
           <h2 className="font-display text-[clamp(1.75rem,3.5vw,2.5rem)] font-700 leading-tight text-arctic-navy">
-            Featured Expeditions
+            Arctic Lodges for Rent
           </h2>
         </div>
 
         {/* Card grid */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-          {tours.map((tour, i) => (
+          {lodges.map((lodge, i) => (
             <article
-              key={tour.title}
+              key={lodge.title}
               className={`group overflow-hidden rounded-xl bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.05)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_4px_12px_rgba(0,0,0,0.1),0_12px_32px_rgba(0,0,0,0.08)] ${
                 visible
                   ? "translate-y-0 opacity-100"
@@ -80,31 +80,29 @@ export default function FeaturedTours() {
                 transitionDelay: visible ? `${i * 120}ms` : "0ms",
               }}
             >
-              {/* Image */}
               <div className="relative aspect-[4/3] overflow-hidden">
                 <Image
-                  src={tour.image}
-                  alt={tour.title}
+                  src={lodge.image}
+                  alt={lodge.title}
                   fill
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-arctic-navy/80 via-transparent to-transparent" />
                 <span className="absolute left-4 top-4 rounded-md bg-polar-teal/90 px-3 py-1 font-heading text-[11px] font-600 uppercase tracking-wider text-white backdrop-blur-sm">
-                  {tour.badge}
+                  {lodge.badge}
                 </span>
                 <h3 className="absolute bottom-4 left-4 right-4 font-heading text-xl font-700 text-white">
-                  {tour.title}
+                  {lodge.title}
                 </h3>
               </div>
 
-              {/* Content */}
               <div className="p-5 lg:p-6">
                 <p className="mb-4 font-body text-sm leading-relaxed text-stone">
-                  {tour.description}
+                  {lodge.description}
                 </p>
                 <div className="flex items-center justify-between">
                   <span className="font-heading text-lg font-700 text-arctic-navy">
-                    {tour.price}
+                    {lodge.price}
                   </span>
                   <a
                     href="#"

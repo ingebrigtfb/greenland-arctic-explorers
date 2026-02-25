@@ -64,7 +64,7 @@ export default function UpcomingEvents() {
     <section
       id="events"
       ref={sectionRef}
-      className="bg-ice-gray py-20 lg:py-28"
+      className="bg-frost-light py-20 lg:py-28"
     >
       <div className="mx-auto max-w-[1280px] px-6 lg:px-12">
         {/* Header */}

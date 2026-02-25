@@ -22,7 +22,7 @@ export default function ExploreTerritory() {
     <section
       id="explore"
       ref={sectionRef}
-      className="relative overflow-hidden bg-frost-light py-20 lg:py-28"
+      className="relative overflow-hidden bg-ice-gray py-20 lg:py-28"
     >
       {/* Decorative blobs */}
       <div className="absolute -left-20 top-10 h-64 w-64 rounded-full bg-frost opacity-50 blur-3xl" />
