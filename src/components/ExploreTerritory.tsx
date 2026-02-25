@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import GreenlandMap from "./GreenlandMap";
+import Image from "next/image";
 
 export default function ExploreTerritory() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -71,7 +71,13 @@ export default function ExploreTerritory() {
         >
           <div className="relative">
             <div className="absolute -inset-6 rounded-3xl bg-glacier/5 blur-xl" />
-            <GreenlandMap className="relative h-[360px] w-auto drop-shadow-lg lg:h-[440px]" />
+            <Image
+              src="/greenland_map_colors.png"
+              alt="Map of Greenland with highlighted regions"
+              width={440}
+              height={440}
+              className="relative h-[360px] w-auto drop-shadow-lg lg:h-[440px]"
+            />
           </div>
         </div>
       </div>
