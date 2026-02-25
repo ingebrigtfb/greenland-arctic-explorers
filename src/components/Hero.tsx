@@ -17,18 +17,15 @@ export default function Hero() {
 
       {/* Content row: text left, map right */}
       <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 pt-20 pb-20 lg:mx-auto lg:max-w-5xl lg:flex-row lg:items-center lg:justify-center lg:gap-16">
-        <div className="max-w-xl text-center lg:text-left lg:space-y-3">
-          {/* Overline */}
-          <p className="mb-4 font-heading text-xs font-500 uppercase tracking-[0.2em] text-frost/80">
-            Community of Arctic Explorers
-          </p>
-
-          {/* Title */}
+        <div className="max-w-xl text-center drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)] lg:text-left lg:space-y-3">
           <h1 className="mb-2 font-display text-[clamp(2.8rem,6vw,4.8rem)] font-800 leading-[1.05] tracking-tight text-white">
             Greenland
           </h1>
-          <p className="font-heading text-[clamp(1.25rem,3vw,2rem)] font-400 tracking-[0.08em] text-frost/90">
+          <p className="mb-4 font-heading text-[clamp(1.25rem,3vw,2rem)] font-medium tracking-[0.08em] text-frost">
             Arctic Explorers
+          </p>
+          <p className="font-body text-[clamp(0.9rem,1.5vw,1.15rem)] font-medium leading-relaxed text-white">
+            We know nature – both on land and at sea!
           </p>
         </div>
 
@@ -38,7 +35,7 @@ export default function Hero() {
             alt="Stylized map of Greenland"
             width={420}
             height={420}
-            className="h-auto w-[260px] drop-shadow-xl lg:w-[340px]"
+            className="h-auto w-[260px] drop-shadow-[0_4px_20px_rgba(0,0,0,0.45)] lg:w-[340px]"
           />
         </div>
       </div>
