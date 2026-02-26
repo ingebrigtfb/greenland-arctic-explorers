@@ -108,6 +108,15 @@ body {
   pointer-events: none;
 }
 
+.mapboxgl-ctrl-top-right {
+  top: 5rem !important;
+}
+@media (min-width: 1024px) {
+  .mapboxgl-ctrl-top-right {
+    top: 5.5rem !important;
+  }
+}
+
 :focus-visible {
   outline: 2px solid var(--color-ice-blue);
   outline-offset: 2px;

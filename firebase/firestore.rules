@@ -1,0 +1,24 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Single-doc content (hero, about, contact)
+    match /content/{docId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    // Collections: tours, races, lodges, activities
+    match /{collection}/{docId} {
+      allow read: if collection in ['tours', 'races', 'lodges', 'activities']
+                  && (isAuthenticated() || resource.data.published == true);
+      allow write: if collection in ['tours', 'races', 'lodges', 'activities']
+                   && isAuthenticated();
+    }
+  }
+}

@@ -4,6 +4,7 @@ const quickLinks = [
   { label: "Races", href: "/races" },
   { label: "Arctic Lodges", href: "/arctic-lodges" },
   { label: "Activities", href: "/activities" },
+  { label: "Tour Map", href: "/tour-map" },
   { label: "About Us", href: "/about-us" },
   { label: "Contact Us", href: "/contact-us" },
 ];
@@ -15,7 +16,7 @@ export default function Footer() {
   return (
     <footer className="bg-arctic-navy text-mist/80">
       <div className="mx-auto max-w-[1280px] px-6 py-14 lg:px-12 lg:py-16">
-        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
           {/* Brand */}
           <div>
             <div className="mb-4">
@@ -43,49 +44,25 @@ export default function Footer() {
               <li className="flex items-start gap-2.5">
                 <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0 text-polar-teal" />
                 <span>
-                  12 Harbor Road
+                  3905 Qinngorput
                   <br />
-                  3952 Ilulissat, Greenland
+                  Nuuk, Greenland
                 </span>
               </li>
               <li className="flex items-center gap-2.5">
                 <Phone className="h-4 w-4 flex-shrink-0 text-polar-teal" />
-                <a href="tel:+299123456" className="transition-colors hover:text-ice-blue">
-                  +299 12 34 56
+                <a href="tel:+299260720" className="transition-colors hover:text-ice-blue">
+                  +299 260720
                 </a>
               </li>
               <li className="flex items-center gap-2.5">
                 <Mail className="h-4 w-4 flex-shrink-0 text-polar-teal" />
                 <a
-                  href="mailto:info@greenland-explorers.com"
+                  href="mailto:info@gax.gl"
                   className="transition-colors hover:text-ice-blue"
                 >
-                  info@greenland-explorers.com
+                  info@gax.gl
                 </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Opening Hours */}
-          <div>
-            <h4 className="mb-4 font-heading text-xs font-600 uppercase tracking-[0.12em] text-white">
-              Opening Hours
-            </h4>
-            <ul className="space-y-2 font-body text-sm">
-              <li>
-                <span className="text-mist/60">Mon — Fri</span>
-                <br />
-                9:00 AM — 6:00 PM
-              </li>
-              <li>
-                <span className="text-mist/60">Saturday</span>
-                <br />
-                10:00 AM — 4:00 PM
-              </li>
-              <li>
-                <span className="text-mist/60">Sunday</span>
-                <br />
-                Closed (expeditions run daily)
               </li>
             </ul>
           </div>
@@ -96,21 +73,14 @@ export default function Footer() {
               Quick Links
             </h4>
             <ul className="space-y-2.5 font-body text-sm">
-              {[
-                "Expeditions",
-                "Destinations",
-                "Activities",
-                "Cabins & Lodges",
-                "About Us",
-                "FAQ",
-              ].map((link) => (
-                <li key={link}>
-                  <a
-                    href="#"
+              {quickLinks.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
                     className="transition-colors hover:text-ice-blue"
                   >
-                    {link}
-                  </a>
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>

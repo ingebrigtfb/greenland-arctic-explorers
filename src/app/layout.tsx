@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Montserrat, Inter, Sora } from "next/font/google";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Providers from "@/lib/Providers";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -39,9 +38,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${montserrat.variable} ${sora.variable} ${inter.variable} antialiased`}>
-        <Header />
-        <main>{children}</main>
-        <Footer />
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
