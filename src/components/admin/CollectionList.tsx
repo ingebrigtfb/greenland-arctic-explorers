@@ -7,7 +7,7 @@ import { getAllItems, deleteItem } from "@/lib/content";
 import type { CollectionItem } from "@/lib/types";
 import { useToast } from "@/lib/ToastContext";
 import ConfirmDialog from "./ConfirmDialog";
-import { Plus, Pencil, Trash2, Search, Eye, EyeOff, GripVertical } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, GripVertical, Eye, EyeOff } from "lucide-react";
 
 type CollectionName = "tours" | "races" | "lodges" | "activities";
 
@@ -146,7 +146,11 @@ export default function CollectionList({ collection, title, singular }: Props) {
               )}
               <div className="min-w-0 flex-1">
                 <p className="truncate font-heading text-sm font-600 text-arctic-navy">{item.title}</p>
-                <p className="truncate font-body text-xs text-granite">{item.shortDescription || "No description"}</p>
+                {item.date && (
+                  <p className="font-body text-xs text-polar-teal">
+                    {new Date(item.date + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                  </p>
+                )}
               </div>
               <div className="flex items-center gap-2">
                 {item.published ? (

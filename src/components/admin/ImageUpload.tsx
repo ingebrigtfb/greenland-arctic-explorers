@@ -8,7 +8,7 @@ import { Upload, X, ImageIcon } from "lucide-react";
 import Image from "next/image";
 
 const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
 interface Props {
   value?: ContentImage;
@@ -124,7 +124,7 @@ export default function ImageUpload({ value, folder, onChange }: Props) {
         )}
       </div>
       {error && <p className="mt-2 font-body text-xs text-alert-red">{error}</p>}
-      <input ref={inputRef} type="file" accept=".jpg,.jpeg,.png,.webp" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f); }} />
+      <input ref={inputRef} type="file" accept=".jpg,.jpeg,.png,.webp,.gif" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f); }} />
     </div>
   );
 }

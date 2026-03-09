@@ -7,9 +7,7 @@ import {
   deleteDoc,
   query,
   where,
-  orderBy,
   serverTimestamp,
-  Timestamp,
 } from "firebase/firestore";
 import { getDbInstance } from "./firebase";
 import type {
@@ -63,20 +61,28 @@ type CollectionName = "tours" | "races" | "lodges" | "activities";
 
 export async function getPublishedItems(col: CollectionName): Promise<CollectionItem[]> {
   const db = getDbInstance();
-  const q = query(
-    collection(db, col),
-    where("published", "==", true),
-    orderBy("sortOrder", "asc")
-  );
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as CollectionItem));
+  const snap = await getDocs(collection(db, col));
+  return snap.docs
+    .map((d) => ({ id: d.id, ...d.data() } as CollectionItem))
+    .filter((item) => item.published)
+    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+}
+
+export async function getPublishedByDate(col: CollectionName): Promise<CollectionItem[]> {
+  const db = getDbInstance();
+  const snap = await getDocs(collection(db, col));
+  return snap.docs
+    .map((d) => ({ id: d.id, ...d.data() } as CollectionItem))
+    .filter((item) => item.published)
+    .sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
 }
 
 export async function getAllItems(col: CollectionName): Promise<CollectionItem[]> {
   const db = getDbInstance();
-  const q = query(collection(db, col), orderBy("sortOrder", "asc"));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as CollectionItem));
+  const snap = await getDocs(collection(db, col));
+  return snap.docs
+    .map((d) => ({ id: d.id, ...d.data() } as CollectionItem))
+    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
 }
 
 export async function getItemById(col: CollectionName, id: string): Promise<CollectionItem | null> {

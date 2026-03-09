@@ -1,12 +1,27 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Image from "next/image";
+import { getHero } from "@/lib/content";
+import type { HeroContent } from "@/lib/types";
 
 export default function Hero() {
+  const [heroImage, setHeroImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    getHero()
+      .then((data) => {
+        if (data?.heroImage?.url) setHeroImage(data.heroImage.url);
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <section className="relative h-screen overflow-hidden">
       {/* Background image */}
       <div className="absolute inset-0">
         <Image
-          src="/hero1.JPEG"
+          src={heroImage || "/hero1.JPEG"}
           alt="Greenland Arctic landscape"
           fill
           priority

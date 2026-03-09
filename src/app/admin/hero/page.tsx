@@ -9,11 +9,7 @@ import { Save, Loader2 } from "lucide-react";
 
 export default function AdminHero() {
   const { toast } = useToast();
-  const [form, setForm] = useState<Partial<HeroContent>>({
-    title: "Greenland",
-    subtitle: "Arctic Explorers",
-    tagline: "We know nature – both on land and at sea!",
-  });
+  const [form, setForm] = useState<Partial<HeroContent>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -25,13 +21,11 @@ export default function AdminHero() {
     })();
   }, []);
 
-  const update = (patch: Partial<HeroContent>) => setForm((p) => ({ ...p, ...patch }));
-
   const handleSave = async () => {
     setSaving(true);
     try {
       await saveHero(form);
-      toast("Hero content saved");
+      toast("Hero image saved");
     } catch {
       toast("Failed to save", "error");
     }
@@ -52,7 +46,7 @@ export default function AdminHero() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="font-display text-2xl font-800 text-arctic-navy lg:text-3xl">Hero Section</h1>
-          <p className="font-body text-sm text-granite">Edit the homepage hero banner</p>
+          <p className="font-body text-sm text-granite">Change the homepage hero background image</p>
         </div>
         <button
           onClick={handleSave}
@@ -64,55 +58,9 @@ export default function AdminHero() {
         </button>
       </div>
 
-      <div className="space-y-6">
-        <div className="rounded-xl border border-mist bg-white p-5">
-          <label className="mb-3 block font-heading text-[11px] font-600 uppercase tracking-wider text-granite">Hero Image</label>
-          <ImageUpload value={form.heroImage} folder="hero" onChange={(img) => update({ heroImage: img })} />
-        </div>
-
-        <div className="rounded-xl border border-mist bg-white p-5 space-y-4">
-          <div>
-            <label className="mb-1.5 block font-heading text-[11px] font-600 uppercase tracking-wider text-granite">Title</label>
-            <input type="text" value={form.title || ""} onChange={(e) => update({ title: e.target.value })}
-              className="w-full rounded-xl border border-mist px-4 py-3 font-body text-sm text-charcoal outline-none focus:border-glacier focus:ring-2 focus:ring-glacier/20" />
-          </div>
-          <div>
-            <label className="mb-1.5 block font-heading text-[11px] font-600 uppercase tracking-wider text-granite">Subtitle</label>
-            <input type="text" value={form.subtitle || ""} onChange={(e) => update({ subtitle: e.target.value })}
-              className="w-full rounded-xl border border-mist px-4 py-3 font-body text-sm text-charcoal outline-none focus:border-glacier focus:ring-2 focus:ring-glacier/20" />
-          </div>
-          <div>
-            <label className="mb-1.5 block font-heading text-[11px] font-600 uppercase tracking-wider text-granite">Tagline</label>
-            <input type="text" value={form.tagline || ""} onChange={(e) => update({ tagline: e.target.value })}
-              className="w-full rounded-xl border border-mist px-4 py-3 font-body text-sm text-charcoal outline-none focus:border-glacier focus:ring-2 focus:ring-glacier/20" />
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-mist bg-white p-5 space-y-4">
-          <p className="font-heading text-xs font-600 uppercase tracking-wider text-granite">Call to Action Buttons</p>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <label className="mb-1.5 block font-heading text-[11px] font-600 uppercase tracking-wider text-granite">Primary Text</label>
-              <input type="text" value={form.ctaPrimaryText || ""} onChange={(e) => update({ ctaPrimaryText: e.target.value })}
-                className="w-full rounded-xl border border-mist px-4 py-3 font-body text-sm text-charcoal outline-none focus:border-glacier focus:ring-2 focus:ring-glacier/20" placeholder="e.g. Browse Expeditions" />
-            </div>
-            <div>
-              <label className="mb-1.5 block font-heading text-[11px] font-600 uppercase tracking-wider text-granite">Primary Link</label>
-              <input type="text" value={form.ctaPrimaryHref || ""} onChange={(e) => update({ ctaPrimaryHref: e.target.value })}
-                className="w-full rounded-xl border border-mist px-4 py-3 font-body text-sm text-charcoal outline-none focus:border-glacier focus:ring-2 focus:ring-glacier/20" placeholder="/tours" />
-            </div>
-            <div>
-              <label className="mb-1.5 block font-heading text-[11px] font-600 uppercase tracking-wider text-granite">Secondary Text</label>
-              <input type="text" value={form.ctaSecondaryText || ""} onChange={(e) => update({ ctaSecondaryText: e.target.value })}
-                className="w-full rounded-xl border border-mist px-4 py-3 font-body text-sm text-charcoal outline-none focus:border-glacier focus:ring-2 focus:ring-glacier/20" placeholder="e.g. Contact Us" />
-            </div>
-            <div>
-              <label className="mb-1.5 block font-heading text-[11px] font-600 uppercase tracking-wider text-granite">Secondary Link</label>
-              <input type="text" value={form.ctaSecondaryHref || ""} onChange={(e) => update({ ctaSecondaryHref: e.target.value })}
-                className="w-full rounded-xl border border-mist px-4 py-3 font-body text-sm text-charcoal outline-none focus:border-glacier focus:ring-2 focus:ring-glacier/20" placeholder="/contact-us" />
-            </div>
-          </div>
-        </div>
+      <div className="rounded-xl border border-mist bg-white p-5">
+        <label className="mb-3 block font-heading text-[11px] font-600 uppercase tracking-wider text-granite">Hero Image</label>
+        <ImageUpload value={form.heroImage} folder="hero" onChange={(img) => setForm((p) => ({ ...p, heroImage: img }))} />
       </div>
     </div>
   );

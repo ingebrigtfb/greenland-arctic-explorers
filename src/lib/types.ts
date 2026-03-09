@@ -17,6 +17,8 @@ export interface CollectionItem {
   price?: string;
   duration?: string;
   location?: string;
+  date?: string;
+  videoUrl?: string;
   tags?: string[];
   published: boolean;
   sortOrder: number;

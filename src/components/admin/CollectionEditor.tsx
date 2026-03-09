@@ -6,7 +6,9 @@ import { getItemById, saveItem } from "@/lib/content";
 import type { CollectionItem, ContentImage } from "@/lib/types";
 import { useToast } from "@/lib/ToastContext";
 import ImageUpload from "./ImageUpload";
-import { ArrowLeft, Save, Loader2 } from "lucide-react";
+import GalleryUpload from "./GalleryUpload";
+import RichTextEditor from "./RichTextEditor";
+import { ArrowLeft, Save, Loader2, Video, Eye, EyeOff, Images } from "lucide-react";
 import Link from "next/link";
 
 type CollectionName = "tours" | "races" | "lodges" | "activities";
@@ -159,19 +161,53 @@ export default function CollectionEditor({ collection, singular, itemId }: Props
 
           <div>
             <label className="mb-1.5 block font-heading text-[11px] font-600 uppercase tracking-wider text-granite">Long Description</label>
-            <textarea
+            <RichTextEditor
               value={form.longDescription || ""}
-              onChange={(e) => update({ longDescription: e.target.value })}
-              rows={8}
-              className="w-full rounded-xl border border-mist px-4 py-3 font-body text-sm text-charcoal outline-none focus:border-glacier focus:ring-2 focus:ring-glacier/20"
-              placeholder="Full description (supports markdown)"
+              onChange={(html) => update({ longDescription: html })}
+              placeholder="Full description — use the toolbar to format text"
             />
           </div>
         </div>
 
+        {/* Video */}
+        <div className="rounded-xl border border-mist bg-white p-5">
+          <label className="mb-1.5 flex items-center gap-2 font-heading text-[11px] font-600 uppercase tracking-wider text-granite">
+            <Video className="h-3.5 w-3.5" />
+            Video Link
+          </label>
+          <input
+            type="url"
+            value={form.videoUrl || ""}
+            onChange={(e) => update({ videoUrl: e.target.value })}
+            className="w-full rounded-xl border border-mist px-4 py-3 font-body text-sm text-charcoal outline-none focus:border-glacier focus:ring-2 focus:ring-glacier/20"
+            placeholder="YouTube or Vimeo URL (e.g. https://youtube.com/watch?v=...)"
+          />
+          {form.videoUrl && (
+            <p className="mt-2 font-body text-xs text-granite">
+              Video will be embedded on the public page below the description.
+            </p>
+          )}
+        </div>
+
+        {/* Gallery */}
+        <div className="rounded-xl border border-mist bg-white p-5">
+          <label className="mb-3 flex items-center gap-2 font-heading text-[11px] font-600 uppercase tracking-wider text-granite">
+            <Images className="h-3.5 w-3.5" />
+            Gallery Images
+          </label>
+          <GalleryUpload
+            value={form.gallery || []}
+            folder={collection}
+            onChange={(images) => update({ gallery: images })}
+          />
+          <p className="mt-2 font-body text-xs text-granite">
+            These images will be displayed below the video on the public page.
+          </p>
+        </div>
+
         {/* Meta fields */}
         <div className="rounded-xl border border-mist bg-white p-5">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="mb-1.5 block font-heading text-[11px] font-600 uppercase tracking-wider text-granite">Price</label>
               <input
@@ -202,6 +238,15 @@ export default function CollectionEditor({ collection, singular, itemId }: Props
                 placeholder="e.g. Ilulissat"
               />
             </div>
+            <div>
+              <label className="mb-1.5 block font-heading text-[11px] font-600 uppercase tracking-wider text-granite">Date</label>
+              <input
+                type="date"
+                value={form.date || ""}
+                onChange={(e) => update({ date: e.target.value })}
+                className="w-full rounded-xl border border-mist px-4 py-3 font-body text-sm text-charcoal outline-none focus:border-glacier focus:ring-2 focus:ring-glacier/20"
+              />
+            </div>
           </div>
         </div>
 
@@ -230,27 +275,29 @@ export default function CollectionEditor({ collection, singular, itemId }: Props
         </div>
 
         {/* Publishing */}
-        <div className="rounded-xl border border-mist bg-white p-5">
+        <div className={`rounded-xl border-2 p-5 transition-colors ${form.published ? "border-aurora-green/30 bg-aurora-green/5" : "border-mist bg-white"}`}>
           <div className="flex items-center justify-between">
-            <div>
-              <p className="font-heading text-sm font-600 text-arctic-navy">Published</p>
-              <p className="font-body text-xs text-granite">Make this {singular.toLowerCase()} visible on the site</p>
+            <div className="flex items-center gap-3">
+              <div className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${form.published ? "bg-aurora-green/15 text-aurora-green" : "bg-mist text-granite"}`}>
+                {form.published ? <Eye className="h-4.5 w-4.5" /> : <EyeOff className="h-4.5 w-4.5" />}
+              </div>
+              <div>
+                <p className="font-heading text-sm font-600 text-arctic-navy">
+                  {form.published ? "Published" : "Draft"}
+                </p>
+                <p className="font-body text-xs text-granite">
+                  {form.published ? "Visible on the site" : `This ${singular.toLowerCase()} is hidden`}
+                </p>
+              </div>
             </div>
             <button
               onClick={() => update({ published: !form.published })}
-              className={`relative h-7 w-12 rounded-full transition-colors ${form.published ? "bg-aurora-green" : "bg-mist"}`}
+              role="switch"
+              aria-checked={form.published}
+              className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors duration-200 ${form.published ? "bg-aurora-green" : "bg-mist"}`}
             >
-              <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform ${form.published ? "translate-x-5" : "translate-x-0.5"}`} />
+              <span className={`inline-block h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200 ${form.published ? "translate-x-6" : "translate-x-1"}`} />
             </button>
-          </div>
-          <div className="mt-4">
-            <label className="mb-1.5 block font-heading text-[11px] font-600 uppercase tracking-wider text-granite">Sort Order</label>
-            <input
-              type="number"
-              value={form.sortOrder ?? 0}
-              onChange={(e) => update({ sortOrder: parseInt(e.target.value) || 0 })}
-              className="w-24 rounded-xl border border-mist px-4 py-2.5 font-body text-sm text-charcoal outline-none focus:border-glacier focus:ring-2 focus:ring-glacier/20"
-            />
           </div>
         </div>
       </div>
