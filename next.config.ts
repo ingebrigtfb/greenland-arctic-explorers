@@ -11,6 +11,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "firebasestorage.googleapis.com",
       },
+      {
+        protocol: "https",
+        hostname: "bokun.s3.amazonaws.com",
+      },
+      {
+        protocol: "https",
+        hostname: "imgcdn.bokun.tools",
+      },
     ],
   },
 };
