@@ -5,11 +5,34 @@ import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { getItemBySlug } from "@/lib/content";
-import type { CollectionItem } from "@/lib/types";
 import { MapPin, Clock, ArrowLeft, ArrowRight, Play, ChevronLeft, ChevronRight, X } from "lucide-react";
 
-function formatPrice(price?: string) {
+type GalleryImage = {
+  url: string;
+  alt?: string;
+  storagePath?: string;
+};
+
+type RaceDetail = {
+  id: string;
+  title: string;
+  slug?: string;
+  featuredImage?: { url: string };
+  date?: string;
+  shortDescription?: string;
+  longDescription?: string;
+  price?: string | number;
+  duration?: string;
+  location?: string;
+  videoUrl?: string;
+  gallery?: GalleryImage[];
+};
+
+function formatPrice(price?: string | number) {
   if (!price) return null;
+  if (typeof price === "number") {
+    return `${price.toLocaleString("da-DK")} DKK`;
+  }
   const num = price.replace(/[^\d]/g, "");
   if (!num) return price;
   return `${Number(num).toLocaleString("da-DK")} DKK`;
@@ -61,15 +84,26 @@ function useParallax() {
 
 export default function RaceDetailPage() {
   const { slug } = useParams<{ slug: string }>();
-  const [race, setRace] = useState<CollectionItem | null>(null);
+  const [race, setRace] = useState<RaceDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
   const parallaxRef = useParallax();
 
   useEffect(() => {
     if (!slug) return;
+
+    if (slug.startsWith("bokun-")) {
+      const id = slug.replace(/^bokun-/, "");
+      fetch(`/api/bokun/activity/${encodeURIComponent(id)}`)
+        .then((r) => r.json())
+        .then((data) => setRace(data?.race ?? null))
+        .catch(() => {})
+        .finally(() => setLoading(false));
+      return;
+    }
+
     getItemBySlug("races", slug)
-      .then(setRace)
+      .then((r) => setRace(r as unknown as RaceDetail | null))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [slug]);
@@ -274,7 +308,7 @@ function GalleryImages({
   title,
   hasVideo,
 }: {
-  images: NonNullable<CollectionItem["gallery"]>;
+  images: NonNullable<RaceDetail["gallery"]>;
   title: string;
   hasVideo: boolean;
 }) {
