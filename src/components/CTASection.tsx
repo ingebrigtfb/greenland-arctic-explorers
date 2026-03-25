@@ -31,7 +31,7 @@ export default function CTASection() {
           fill
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-arctic-navy/70 via-arctic-navy/50 to-arctic-navy/80" />
+        <div className="absolute inset-0 bg-gradient-to-b from-arctic-navy/50 via-arctic-navy/30 to-arctic-navy/50" />
       </div>
 
       <div
