@@ -57,7 +57,7 @@ export async function saveContact(data: Partial<ContactContent>) {
 
 // ── Collection helpers ──
 
-type CollectionName = "tours" | "races" | "lodges" | "activities";
+export type CollectionName = "tours" | "races" | "lodges" | "activities";
 
 export async function getPublishedItems(col: CollectionName): Promise<CollectionItem[]> {
   const db = getDbInstance();
