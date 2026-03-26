@@ -6,6 +6,7 @@ import Script from "next/script";
 import Image from "next/image";
 import Link from "next/link";
 import { getItemBySlug } from "@/lib/content";
+import type { CollectionName } from "@/lib/content";
 import { MapPin, Clock, ArrowLeft, ArrowRight, Play, ChevronLeft, ChevronRight, X } from "lucide-react";
 
 const BOKUN_CHANNEL_UUID = "09b0e18f-69ba-4d92-ac12-ae0cb8587270";
@@ -84,7 +85,7 @@ function useParallax() {
 }
 
 interface ContentDetailPageProps {
-  collection: string;
+  collection: CollectionName;
   label: string;
   labelPlural: string;
   backHref: string;
