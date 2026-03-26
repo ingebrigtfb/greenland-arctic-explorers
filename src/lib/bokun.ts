@@ -1,5 +1,14 @@
 import crypto from "crypto";
 
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
 export type BokunImage = {
   url: string;
   alt?: string;
@@ -117,7 +126,7 @@ export async function listBokunActivities(): Promise<BokunRaceCard[]> {
 }
 
 export async function listBokunLodges(): Promise<BokunRaceCard[]> {
-  return listBokunByProductCode("lodge");
+  return listBokunByProductCode("cabins");
 }
 
 function matchesProductCode(externalId: unknown, productCode: string) {
@@ -183,9 +192,10 @@ async function listBokunByProductCode(productCode: string): Promise<BokunRaceCar
   return filtered.map((item) => {
     const priceNum = typeof item.price === "number" ? item.price : Number(item.price);
     const id = String(item.id);
+    const titleSlug = slugify(String(item.title ?? "untitled"));
     return {
       id,
-      slug: `bokun-${id}`,
+      slug: `${titleSlug}-${id}`,
       title: String(item.title ?? "Untitled"),
       shortDescription: item.excerpt ? String(item.excerpt) : undefined,
       featuredImage: mapBokunPhoto(item.keyPhoto),
@@ -243,7 +253,7 @@ export async function getBokunRaceDetail(id: string): Promise<BokunRaceDetail> {
 
   return {
     id: String(item.id ?? id),
-    slug: `bokun-${id}`,
+    slug: `${slugify(String(item.title ?? "untitled"))}-${id}`,
     title: String(item.title ?? "Untitled"),
     shortDescription: item.excerpt ? String(item.excerpt) : undefined,
     longDescription: item.description ? String(item.description) : undefined,
