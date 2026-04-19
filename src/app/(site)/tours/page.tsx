@@ -20,7 +20,7 @@ export default function ToursPage() {
             priority
             className="object-cover object-top"
           />
-          <div className="absolute inset-0 bg-arctic-navy/75" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/20" />
         </div>
 
         <div className="relative mx-auto max-w-[1280px] px-6 lg:px-12">

@@ -25,7 +25,7 @@ export default function AboutContent() {
 
   function renderGrid(people: TeamMember[]) {
     return (
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {people.map((member, i) => (
           <div key={i}>
             <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-border">
@@ -70,10 +70,10 @@ export default function AboutContent() {
 
   if (loading) {
     return (
-      <section className="mx-auto max-w-6xl px-6 pt-40 pb-24 lg:px-12">
-        <div className="mb-3 h-3 w-20 animate-pulse rounded bg-mist" />
-        <div className="mb-10 h-9 w-48 animate-pulse rounded bg-mist" />
-        <div className="space-y-4 max-w-2xl">
+      <section className="mx-auto max-w-4xl px-6 pt-40 pb-24 text-center lg:px-12">
+        <div className="mb-3 mx-auto h-3 w-20 animate-pulse rounded bg-mist" />
+        <div className="mb-10 mx-auto h-9 w-48 animate-pulse rounded bg-mist" />
+        <div className="space-y-4 max-w-2xl mx-auto">
           <div className="h-4 w-full animate-pulse rounded bg-mist" />
           <div className="h-4 w-5/6 animate-pulse rounded bg-mist" />
           <div className="h-4 w-4/5 animate-pulse rounded bg-mist" />
@@ -83,7 +83,7 @@ export default function AboutContent() {
   }
 
   return (
-    <section className="mx-auto max-w-6xl px-6 pt-40 pb-24 lg:px-12">
+    <section className="mx-auto max-w-4xl px-6 pt-40 pb-24 text-center lg:px-12">
       {/* Overline + Title */}
       <p className="mb-3 font-heading text-xs font-600 uppercase tracking-[0.15em] text-glacier">
         {data?.overline || "Our Story"}
@@ -94,7 +94,7 @@ export default function AboutContent() {
 
       {/* Content blocks */}
       {data?.blocks && data.blocks.length > 0 ? (
-        <div className="space-y-16">
+        <div className="space-y-16 text-left">
           {data.blocks.map((block, i) => (
             <div
               key={i}
@@ -103,7 +103,7 @@ export default function AboutContent() {
                   ? i % 2 === 0
                     ? "lg:flex-row"
                     : "lg:flex-row-reverse"
-                  : ""
+                  : "items-center"
               }`}
             >
               {block.image?.url && (
@@ -119,7 +119,7 @@ export default function AboutContent() {
                   </div>
                 </div>
               )}
-              <div className={block.image ? "lg:w-3/5" : "max-w-3xl"}>
+              <div className={block.image ? "lg:w-3/5" : "w-full"}>
                 {block.headline && (
                   <h2 className="mb-4 font-display text-2xl font-700 text-navy lg:text-3xl">
                     {block.headline}
@@ -135,7 +135,7 @@ export default function AboutContent() {
           ))}
         </div>
       ) : (
-        <p className="max-w-2xl font-body text-lg leading-relaxed text-charcoal/80">
+        <p className="mx-auto max-w-2xl font-body text-lg leading-relaxed text-charcoal/80">
           Founded in 2022, Greenland Arctic Xplorers was born from a passion for
           sharing the raw beauty of the Arctic with the world. Our team of local
           guides and expedition leaders brings decades of combined experience.
@@ -144,32 +144,28 @@ export default function AboutContent() {
 
       {/* ── Founders ── */}
       {founders.length > 0 && (
-        <div className="mt-24">
-          <div className="mb-2 flex items-center gap-2.5">
+        <div className="mt-24 text-center">
+          <div className="mb-2 flex items-center justify-center gap-2.5">
             <Users className="h-5 w-5 text-glacier" />
             <p className="font-heading text-xs font-600 uppercase tracking-[0.15em] text-glacier">
               Founders
             </p>
           </div>
-          <h2 className="mb-10 font-display text-[clamp(1.6rem,3vw,2.5rem)] font-800 text-navy">
-            The People Behind the Adventures
-          </h2>
+          <div className="mb-10" />
           {renderGrid(founders)}
         </div>
       )}
 
       {/* ── Team ── */}
       {members.length > 0 && (
-        <div className="mt-20">
-          <div className="mb-2 flex items-center gap-2.5">
+        <div className="mt-20 text-center">
+          <div className="mb-2 flex items-center justify-center gap-2.5">
             <Users className="h-5 w-5 text-glacier" />
             <p className="font-heading text-xs font-600 uppercase tracking-[0.15em] text-glacier">
               The Crew
             </p>
           </div>
-          <h2 className="mb-10 font-display text-[clamp(1.6rem,3vw,2.5rem)] font-800 text-navy">
-            Team Greenland Arctic Xplorers
-          </h2>
+          <div className="mb-10" />
           {renderGrid(members)}
         </div>
       )}
