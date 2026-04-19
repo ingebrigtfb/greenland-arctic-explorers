@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
+import Image from "next/image";
 import Link from "next/link";
-import BokunEventCard, { type BokunEventCardData } from "@/components/BokunEventCard";
+import { MapPin, Clock, ArrowRight, ChevronRight, Calendar } from "lucide-react";
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? "";
 
@@ -22,12 +23,42 @@ type MapPoint = {
   lng: number;
 };
 
+function dotColor(href: string): string {
+  if (href.includes("/races/")) return "#FF6E40";       // arctic-orange
+  if (href.includes("/tours/")) return "#2E8BA7";       // polar-teal
+  if (href.includes("/activities/")) return "#5FA8D3";  // ice-blue
+  return "#1B4965";                                     // glacier (lodges / fallback)
+}
+
+function dotColorHover(href: string): string {
+  if (href.includes("/races/")) return "rgba(255,110,64,0.35)";
+  if (href.includes("/tours/")) return "rgba(46,139,167,0.35)";
+  if (href.includes("/activities/")) return "rgba(95,168,211,0.35)";
+  return "rgba(27,73,101,0.35)";
+}
+
+type Tooltip = {
+  x: number;
+  y: number;
+  title: string;
+  price?: number;
+  location?: string;
+  locationName?: string;
+  duration?: string;
+};
+
+function formatPrice(price?: number) {
+  if (!price) return null;
+  return `${price.toLocaleString("da-DK")} DKK`;
+}
+
 export default function TourMap() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [selected, setSelected] = useState<MapPoint | null>(null);
+  const [tooltip, setTooltip] = useState<Tooltip | null>(null);
 
   useEffect(() => {
     if (!MAPBOX_TOKEN) return;
@@ -60,19 +91,45 @@ export default function TourMap() {
         const json = await res.json();
         const points: MapPoint[] = Array.isArray(json?.points) ? json.points : [];
 
-        // Clear existing markers if any
         for (const m of markersRef.current) m.remove();
         markersRef.current = [];
 
         for (const p of points) {
           if (!Number.isFinite(p.lat) || !Number.isFinite(p.lng)) continue;
 
+          const color = dotColor(p.href);
+          const hoverGlow = dotColorHover(p.href);
+
           const el = document.createElement("div");
-          el.className =
-            "h-3.5 w-3.5 rounded-full bg-polar-teal ring-2 ring-white shadow-[0_6px_18px_rgba(0,0,0,0.25)]";
-          el.style.cursor = "pointer";
+          el.style.cssText =
+            `width:14px;height:14px;border-radius:50%;background:${color};` +
+            "box-shadow:0 0 0 2px white,0 6px 18px rgba(0,0,0,0.25);" +
+            "cursor:pointer;transition:box-shadow 0.15s ease;";
+
+          el.addEventListener("mouseenter", (e) => {
+            el.style.boxShadow =
+              `0 0 0 2px white,0 0 0 7px ${hoverGlow},0 6px 18px rgba(0,0,0,0.25)`;
+            const rect = el.getBoundingClientRect();
+            setTooltip({
+              x: rect.left + rect.width / 2,
+              y: rect.top,
+              title: p.title,
+              price: p.price,
+              location: p.location,
+              locationName: p.locationName,
+              duration: p.duration,
+            });
+            void e;
+          });
+
+          el.addEventListener("mouseleave", () => {
+            el.style.boxShadow = "0 0 0 2px white,0 6px 18px rgba(0,0,0,0.25)";
+            setTooltip(null);
+          });
+
           el.addEventListener("click", (e) => {
             e.stopPropagation();
+            setTooltip(null);
             setSelected(p);
           });
 
@@ -83,7 +140,7 @@ export default function TourMap() {
           markersRef.current.push(marker);
         }
       } catch {
-        // ignore map points failures; map still works
+        // map still works without points
       }
     });
 
@@ -106,6 +163,8 @@ export default function TourMap() {
     return () => window.removeEventListener("keydown", onKey);
   }, [selected]);
 
+  const close = useCallback(() => setSelected(null), []);
+
   return (
     <div className="fixed inset-0 z-0">
       <div ref={mapContainer} className="h-full w-full" />
@@ -114,9 +173,7 @@ export default function TourMap() {
         <div className="absolute inset-0 flex items-center justify-center bg-frost-light">
           <div className="flex flex-col items-center gap-3">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-glacier border-t-transparent" />
-            <p className="font-heading text-sm font-600 text-glacier">
-              Loading map…
-            </p>
+            <p className="font-heading text-sm font-600 text-glacier">Loading map…</p>
           </div>
         </div>
       )}
@@ -150,47 +207,137 @@ export default function TourMap() {
         </div>
       )}
 
-      {/* Experience modal */}
-      {selected && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6">
-          <div
-            className="absolute inset-0 bg-arctic-navy/70 backdrop-blur-sm"
-            onClick={() => setSelected(null)}
-          />
-
-          <div className="relative mx-4 w-full max-w-md">
-            <div className="isolate overflow-hidden rounded-xl bg-white shadow-[0_18px_60px_rgba(0,0,0,0.35)]">
-              <BokunEventCard
-                disableHover
-                onNavigate={() => setSelected(null)}
-                ev={
-                  {
-                    id: selected.id,
-                    href: selected.href,
-                    title: selected.title,
-                    shortDescription: selected.shortDescription,
-                    featuredImage: selected.featuredImageUrl
-                      ? { url: selected.featuredImageUrl }
-                      : undefined,
-                    price: selected.price,
-                    duration: selected.duration,
-                    location: selected.location ?? selected.locationName,
-                  } satisfies BokunEventCardData
-                }
-              />
-            </div>
-
-            <div className="mt-3 flex justify-end">
-              <button
-                onClick={() => setSelected(null)}
-                className="rounded-xl bg-white/90 px-4 py-2 font-heading text-xs font-700 uppercase tracking-wider text-arctic-navy shadow-[0_10px_40px_rgba(0,0,0,0.25)] backdrop-blur-sm hover:bg-white"
-              >
-                Close
-              </button>
+      {/* Dot hover tooltip */}
+      {tooltip && (
+        <div
+          className="pointer-events-none fixed z-[150]"
+          style={{
+            left: tooltip.x,
+            top: tooltip.y - 12,
+            transform: "translate(-50%, -100%)",
+          }}
+        >
+          <div className="relative rounded-xl bg-white px-3.5 py-2.5 shadow-[0_4px_20px_rgba(0,0,0,0.18)]">
+            <p className="whitespace-nowrap font-heading text-sm font-700 text-arctic-navy">
+              {tooltip.title}
+            </p>
+            {(tooltip.location || tooltip.locationName || tooltip.duration || tooltip.price) && (
+              <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5">
+                {(tooltip.location || tooltip.locationName) && (
+                  <span className="inline-flex items-center gap-1 font-body text-xs text-granite">
+                    <MapPin className="h-3 w-3 text-polar-teal" />
+                    {tooltip.location ?? tooltip.locationName}
+                  </span>
+                )}
+                {tooltip.duration && (
+                  <span className="inline-flex items-center gap-1 font-body text-xs text-granite">
+                    <Clock className="h-3 w-3 text-polar-teal" />
+                    {tooltip.duration}
+                  </span>
+                )}
+                {tooltip.price && (
+                  <span className="font-heading text-xs font-700 text-arctic-navy">
+                    {formatPrice(tooltip.price)}
+                  </span>
+                )}
+              </div>
+            )}
+            {/* Downward arrow */}
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full overflow-hidden h-2.5 w-5">
+              <div className="mx-auto h-2.5 w-2.5 -translate-y-1/2 rotate-45 bg-white shadow-[1px_1px_3px_rgba(0,0,0,0.08)]" />
             </div>
           </div>
         </div>
       )}
+
+      {/* Side panel */}
+      <div
+        className={`fixed top-16 right-0 z-[200] flex h-[calc(100%-4rem)] w-full flex-col bg-white shadow-[-6px_0_32px_rgba(0,0,0,0.18)] transition-transform duration-300 ease-in-out sm:w-[400px] lg:top-[72px] lg:h-[calc(100%-72px)] lg:w-[440px] ${
+          selected ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        {/* Arrow tab — only rendered when panel is open so it slides away with the panel */}
+        {selected && (
+          <button
+            onClick={close}
+            aria-label="Close panel"
+            className="absolute -left-10 top-24 flex h-10 w-10 items-center justify-center rounded-l-xl bg-white text-arctic-navy shadow-[-4px_0_12px_rgba(0,0,0,0.12)] transition-colors hover:bg-frost-light"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        )}
+
+        {selected && (
+          <div className="flex h-full flex-col overflow-y-auto">
+            {/* Hero image */}
+            <div className="relative h-[55vh] flex-shrink-0 overflow-hidden bg-glacier/10">
+              {selected.featuredImageUrl ? (
+                <Image
+                  src={selected.featuredImageUrl}
+                  alt={selected.title}
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center">
+                  <Calendar className="h-12 w-12 text-glacier/30" />
+                </div>
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-arctic-navy/70 via-arctic-navy/10 to-transparent" />
+
+              {selected.price && (
+                <div className="absolute top-4 right-4">
+                  <span className="rounded-lg bg-white/90 px-3 py-1.5 font-heading text-xs font-700 text-arctic-navy backdrop-blur-sm">
+                    {formatPrice(selected.price)}
+                  </span>
+                </div>
+              )}
+
+              {/* Title overlay */}
+              <div className="absolute bottom-0 left-0 right-0 p-5">
+                <h2 className="font-display text-2xl font-800 leading-tight text-white drop-shadow-sm">
+                  {selected.title}
+                </h2>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="flex flex-1 flex-col p-6">
+              <div className="mb-4 flex flex-wrap gap-3">
+                {(selected.location || selected.locationName) && (
+                  <span className="inline-flex items-center gap-1.5 font-body text-sm text-granite">
+                    <MapPin className="h-4 w-4 text-polar-teal" />
+                    {selected.location ?? selected.locationName}
+                  </span>
+                )}
+                {selected.duration && (
+                  <span className="inline-flex items-center gap-1.5 font-body text-sm text-granite">
+                    <Clock className="h-4 w-4 text-polar-teal" />
+                    {selected.duration}
+                  </span>
+                )}
+              </div>
+
+              {selected.shortDescription && (
+                <p className="mb-6 font-body text-sm leading-relaxed text-stone">
+                  {selected.shortDescription}
+                </p>
+              )}
+
+              <div className="mt-auto">
+                <Link
+                  href={selected.href}
+                  onClick={close}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-polar-teal px-6 py-3.5 font-heading text-sm font-700 tracking-wide text-white transition-colors hover:bg-glacier"
+                >
+                  Book Now
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

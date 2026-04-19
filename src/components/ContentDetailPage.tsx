@@ -9,7 +9,7 @@ import { getItemBySlug } from "@/lib/content";
 import type { CollectionName } from "@/lib/content";
 import { MapPin, Clock, ArrowLeft, ArrowRight, Play, ChevronLeft, ChevronRight, X } from "lucide-react";
 
-const BOKUN_CHANNEL_UUID = "09b0e18f-69ba-4d92-ac12-ae0cb8587270";
+const BOKUN_CHANNEL_UUID = "159bdf9f-bfe0-451a-8901-42c0293704e6";
 
 type GalleryImage = {
   url: string;

@@ -51,13 +51,13 @@ export default function CTASection() {
         </p>
         <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <a
-            href="#"
+            href="/tours"
             className="inline-flex rounded-xl bg-glacier px-8 py-3.5 font-heading text-sm font-600 tracking-wider text-white transition-all duration-200 hover:bg-polar-teal active:scale-[0.98]"
           >
             Browse Expeditions
           </a>
           <a
-            href="#"
+            href="/contact-us"
             className="inline-flex rounded-xl border-2 border-white/25 px-8 py-3.5 font-heading text-sm font-600 tracking-wider text-white transition-all duration-200 hover:border-white/50 hover:bg-white/10"
           >
             Contact Us

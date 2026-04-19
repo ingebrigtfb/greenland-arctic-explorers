@@ -48,22 +48,19 @@ export default function BokunEventCard({
       href={ev.href}
       onClick={onNavigate}
       className={[
-        "group overflow-hidden rounded-xl bg-white shadow-[0_1px_3px_rgba(0,0,0,0.06),0_6px_20px_rgba(0,0,0,0.06)] transition-all duration-300",
+        "group flex flex-col h-full overflow-hidden rounded-xl bg-white shadow-[0_1px_3px_rgba(0,0,0,0.06),0_6px_20px_rgba(0,0,0,0.06)] transition-all duration-300 outline-none",
         disableHover
           ? ""
           : "hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)]",
       ].join(" ")}
     >
-      <div className="relative h-52 overflow-hidden">
+      <div className="relative h-52 overflow-hidden -mb-px">
         {ev.featuredImage?.url ? (
           <Image
             src={ev.featuredImage.url}
             alt={ev.title}
             fill
-            className={[
-              "object-cover transition-transform duration-500",
-              disableHover ? "" : "group-hover:scale-105",
-            ].join(" ")}
+            className="object-cover"
           />
         ) : (
           <div className="flex h-full items-center justify-center bg-glacier/10">
@@ -88,7 +85,7 @@ export default function BokunEventCard({
           </div>
         )}
 
-        <div className="absolute -bottom-px left-0 right-0">
+        <div className="absolute bottom-0 left-0 right-0">
           <svg
             viewBox="0 0 400 30"
             preserveAspectRatio="none"

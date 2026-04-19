@@ -54,7 +54,7 @@ export default function ExploreTerritory() {
             landscape and plan your daily explorations.
           </p>
           <a
-            href="#map"
+            href="/tour-map"
             className="inline-flex items-center gap-2 rounded-lg border-2 border-glacier bg-transparent px-6 py-3 font-heading text-[13px] font-600 uppercase tracking-wider text-glacier transition-all duration-200 hover:bg-glacier hover:text-white active:scale-[0.98]"
           >
             View Interactive Map
@@ -72,11 +72,11 @@ export default function ExploreTerritory() {
           <div className="relative">
             <div className="absolute -inset-6 rounded-3xl bg-glacier/5 blur-xl" />
             <Image
-              src="/greenland_map_colors.png"
-              alt="Map of Greenland with highlighted regions"
+              src="/explore-green.JPEG"
+              alt="Explore Greenland"
               width={440}
               height={440}
-              className="relative h-[360px] w-auto drop-shadow-lg lg:h-[440px]"
+              className="relative h-[360px] w-auto rounded-2xl object-cover drop-shadow-lg lg:h-[440px]"
             />
           </div>
         </div>

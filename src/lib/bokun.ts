@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { extractDateFromTitle } from "./titleDate";
 
 function slugify(text: string): string {
   return text
@@ -25,6 +26,7 @@ export type BokunRaceCard = {
   duration?: string;
   location?: string;
   date?: string;
+  collection: string;
   source: "bokun";
 };
 
@@ -130,19 +132,19 @@ function mapBokunPhoto(photo: unknown): BokunImage | undefined {
 }
 
 export async function listBokunRaces(): Promise<BokunRaceCard[]> {
-  return listBokunByProductCode("race");
+  return listBokunByProductCode("race", "races");
 }
 
 export async function listBokunTours(): Promise<BokunRaceCard[]> {
-  return listBokunByProductCode("tour");
+  return listBokunByProductCode("tour", "tours");
 }
 
 export async function listBokunActivities(): Promise<BokunRaceCard[]> {
-  return listBokunByProductCode("activities");
+  return listBokunByProductCode("activities", "activities");
 }
 
 export async function listBokunLodges(): Promise<BokunRaceCard[]> {
-  return listBokunByProductCode("lodge");
+  return listBokunByProductCode("lodge", "arctic-lodges");
 }
 
 function matchesProductCode(externalId: unknown, productCode: string) {
@@ -153,7 +155,7 @@ function matchesProductCode(externalId: unknown, productCode: string) {
   return v === code || v.includes(`${code}-`) || v.includes(code);
 }
 
-async function listBokunByProductCode(productCode: string): Promise<BokunRaceCard[]> {
+async function listBokunByProductCode(productCode: string, collection: string): Promise<BokunRaceCard[]> {
   const lang = process.env.BOKUN_RACE_LANG ?? "EN";
   const currency = process.env.BOKUN_RACE_CURRENCY ?? "DKK";
   const pageSize = Number(process.env.BOKUN_RACE_PAGE_SIZE ?? process.env.BOKUN_LIST_PAGE_SIZE ?? "12");
@@ -188,22 +190,39 @@ async function listBokunByProductCode(productCode: string): Promise<BokunRaceCar
     durationText?: string | null;
     locationCode?: BokunLocationCode;
     keyPhoto?: unknown;
+    // Date fields — Bokun may use any of these depending on activity type
+    nextAvailabilityDate?: string | null;
+    startDate?: string | null;
+    nextBookableDate?: string | null;
   };
 
   const json: unknown = await res.json();
   const itemsRaw: unknown = (json as { items?: unknown })?.items;
   const items: BokunActivitySearchItem[] = Array.isArray(itemsRaw) ? (itemsRaw as BokunActivitySearchItem[]) : [];
 
-  const filtered = items
-    .filter((item) => item.id != null && matchesProductCode(item.externalId, productCode))
-    .slice()
-    .sort((a, b) => {
-      const ea = (a.externalId ?? "").toLowerCase();
-      const eb = (b.externalId ?? "").toLowerCase();
-      const byCode = ea.localeCompare(eb);
-      if (byCode !== 0) return byCode;
-      return String(a.title ?? "").localeCompare(String(b.title ?? ""));
-    });
+  function pickDate(item: BokunActivitySearchItem): string | undefined {
+    const raw = item.nextAvailabilityDate ?? item.startDate ?? item.nextBookableDate ?? undefined;
+    if (raw) {
+      const d = new Date(raw);
+      if (!isNaN(d.getTime())) return d.toISOString().slice(0, 10);
+    }
+    // Fall back to date extracted from the title
+    return extractDateFromTitle(String(item.title ?? ""));
+  }
+
+  const filtered = items.filter(
+    (item) => item.id != null && matchesProductCode(item.externalId, productCode)
+  );
+
+  filtered.sort((a, b) => {
+    const da = pickDate(a);
+    const db = pickDate(b);
+    // Items with a date come first (soonest first); undated items sort by title at the end
+    if (da && db) return da.localeCompare(db);
+    if (da) return -1;
+    if (db) return 1;
+    return String(a.title ?? "").localeCompare(String(b.title ?? ""));
+  });
 
   return filtered.map((item) => {
     const priceNum = typeof item.price === "number" ? item.price : Number(item.price);
@@ -218,7 +237,8 @@ async function listBokunByProductCode(productCode: string): Promise<BokunRaceCar
       price: Number.isFinite(priceNum) ? priceNum : undefined,
       duration: item.durationText ? String(item.durationText) : undefined,
       location: item.locationCode?.location ? String(item.locationCode.location) : undefined,
-      date: undefined,
+      date: pickDate(item),
+      collection,
       source: "bokun",
     };
   });

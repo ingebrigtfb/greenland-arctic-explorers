@@ -11,7 +11,7 @@ export default function ToursPage() {
   return (
     <section className="bg-frost-light pb-24">
       {/* Page header with background image (same layout as races) */}
-      <div className="relative overflow-hidden pb-24 pt-40">
+      <div className="relative overflow-hidden pb-24 pt-40 min-h-[420px]">
         <div className="absolute inset-0">
           <Image
             src="/races.JPEG"
@@ -24,7 +24,7 @@ export default function ToursPage() {
         </div>
 
         <div className="relative mx-auto max-w-[1280px] px-6 lg:px-12">
-          <p className="mb-3 font-heading text-xs font-600 uppercase tracking-[0.15em] text-polar-teal">
+          <p className="mb-3 font-heading text-xs font-600 uppercase tracking-[0.15em] text-arctic-orange">
             Our Expeditions
           </p>
           <h1 className="mb-4 font-display text-[clamp(2rem,4vw,3.5rem)] font-800 leading-tight text-white">

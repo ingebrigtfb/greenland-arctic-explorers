@@ -49,10 +49,21 @@ export interface ContentBlock {
   image?: ContentImage;
 }
 
+export type TeamGroup = "founders" | "team";
+
+export interface TeamMember {
+  name: string;
+  role: string;
+  group: TeamGroup;
+  bio?: string;
+  photo?: ContentImage;
+}
+
 export interface AboutContent {
   overline: string;
   title: string;
   blocks: ContentBlock[];
+  team?: TeamMember[];
   updatedAt: Timestamp;
 }
 
