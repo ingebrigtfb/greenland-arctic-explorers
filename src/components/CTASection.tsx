@@ -22,7 +22,7 @@ export default function CTASection() {
     <section
       id="book"
       ref={sectionRef}
-      className="relative overflow-hidden py-24 lg:py-32"
+      className="relative overflow-hidden py-16 lg:py-28"
     >
       <div className="absolute inset-0">
         <Image

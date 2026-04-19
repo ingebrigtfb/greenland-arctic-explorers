@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { getHero } from "@/lib/content";
-import type { HeroContent } from "@/lib/types";
 
 export default function Hero() {
   const [heroImage, setHeroImage] = useState<string | null>(null);
@@ -31,7 +30,7 @@ export default function Hero() {
       </div>
 
       {/* Content row: text left, map right */}
-      <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 pt-20 pb-20 lg:mx-auto lg:max-w-5xl lg:flex-row lg:items-center lg:justify-center lg:gap-16">
+      <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 pt-16 pb-16 lg:mx-auto lg:max-w-5xl lg:flex-row lg:items-center lg:justify-center lg:gap-16">
         <div className="max-w-xl text-center drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)] lg:text-left lg:space-y-3">
           <h1 className="mb-2 font-display text-[clamp(2.8rem,6vw,4.8rem)] font-800 leading-[1.05] tracking-tight text-white">
             Greenland
@@ -39,18 +38,24 @@ export default function Hero() {
           <p className="mb-4 font-heading text-[clamp(1.25rem,3vw,2rem)] font-medium tracking-[0.08em] text-frost">
             Arctic Explorers
           </p>
-          <p className="font-body text-[clamp(0.9rem,1.5vw,1.15rem)] font-medium leading-relaxed text-white">
+          <p className="mb-6 font-body text-[clamp(0.95rem,1.5vw,1.15rem)] font-medium leading-relaxed text-white/90">
             We know nature – both on land and at sea!
           </p>
+          <a
+            href="/tour-map"
+            className="inline-flex lg:hidden items-center gap-2 rounded-xl bg-glacier px-7 py-3 font-heading text-sm font-600 tracking-wider text-white transition-all duration-200 hover:bg-polar-teal active:scale-[0.98]"
+          >
+            Start Exploring
+          </a>
         </div>
 
-        <div className="mt-10 flex justify-center lg:mt-0 lg:ml-12">
+        <div className="hidden mt-8 justify-center lg:flex lg:mt-0 lg:ml-12">
           <Image
             src="/greenland_white_outline.png"
             alt="Stylized map of Greenland"
             width={420}
             height={420}
-            className="h-auto w-[260px] opacity-60 drop-shadow-[0_4px_20px_rgba(0,0,0,0.45)] lg:w-[340px]"
+            className="h-auto w-[min(220px,55vw)] opacity-60 drop-shadow-[0_4px_20px_rgba(0,0,0,0.45)] lg:w-[340px]"
           />
         </div>
       </div>

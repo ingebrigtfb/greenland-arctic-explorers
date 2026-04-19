@@ -129,14 +129,14 @@ export default function Header() {
         role="dialog"
         aria-modal="true"
         aria-label="Navigation menu"
-        className={`fixed inset-0 z-[200] bg-white transition-all duration-400 ${
+        className={`fixed inset-0 z-[200] flex flex-col bg-arctic-navy transition-all duration-300 lg:hidden ${
           menuOpen
             ? "pointer-events-auto translate-y-0 opacity-100"
-            : "pointer-events-none -translate-y-4 opacity-0"
+            : "pointer-events-none -translate-y-3 opacity-0"
         }`}
       >
-        {/* Top bar with logo + close */}
-        <div className="flex h-16 items-center justify-between px-6 lg:px-12">
+        {/* Top bar */}
+        <div className="flex h-16 flex-shrink-0 items-center justify-between px-6">
           <Link href="/" onClick={() => setMenuOpen(false)}>
             <Image
               src="/gax-logo.png"
@@ -146,112 +146,75 @@ export default function Header() {
               className="h-10 w-10"
             />
           </Link>
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-muted">Close</span>
-            <button
-              onClick={() => setMenuOpen(false)}
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-border text-navy transition-all duration-200 hover:bg-frost"
-              aria-label="Close menu"
+          <button
+            onClick={() => setMenuOpen(false)}
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/20 text-white transition-all duration-200 hover:bg-white/10"
+            aria-label="Close menu"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 14 14"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              aria-hidden="true"
             >
+              <line x1="1" y1="1" x2="13" y2="13" />
+              <line x1="13" y1="1" x2="1" y2="13" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="mx-6 border-t border-white/10" />
+
+        {/* Nav links */}
+        <nav className="flex flex-col overflow-y-auto px-6" aria-label="Menu navigation">
+          {navLinks.map((link, i) => (
+            <Link
+              key={link.label}
+              href={link.href}
+              onClick={() => setMenuOpen(false)}
+              className={`flex items-center justify-between border-b border-white/10 py-4 transition-all duration-400 ${
+                pathname === link.href ? "text-arctic-orange" : "text-white/90 hover:text-white"
+              } ${
+                menuOpen ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
+              }`}
+              style={{ transitionDelay: menuOpen ? `${80 + i * 40}ms` : "0ms" }}
+            >
+              <span className="font-display text-xl font-600">{link.label}</span>
               <svg
-                width="14"
-                height="14"
-                viewBox="0 0 14 14"
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="1.5"
                 strokeLinecap="round"
+                strokeLinejoin="round"
+                className="opacity-40"
                 aria-hidden="true"
               >
-                <line x1="1" y1="1" x2="13" y2="13" />
-                <line x1="13" y1="1" x2="1" y2="13" />
+                <line x1="3" y1="8" x2="13" y2="8" />
+                <polyline points="9,4 13,8 9,12" />
               </svg>
-            </button>
-          </div>
-        </div>
+            </Link>
+          ))}
+        </nav>
 
-        {/* Menu content */}
-        <div className="h-[calc(100%-4rem)] overflow-y-auto px-8 pb-16 lg:grid lg:grid-cols-12 lg:gap-8 lg:px-16">
-          <nav
-            className="flex flex-col gap-1 lg:col-span-7"
-            aria-label="Menu navigation"
+        {/* Bottom CTA */}
+        <div className="mt-auto flex-shrink-0 px-6 pb-10 pt-6">
+          <p className="mb-1 font-heading text-[11px] font-600 uppercase tracking-[0.12em] text-white/40">
+            Ready to explore?
+          </p>
+          <Link
+            href="/contact-us"
+            onClick={() => setMenuOpen(false)}
+            className="block w-full rounded-xl bg-glacier py-3.5 text-center font-heading text-sm font-600 tracking-wider text-white transition-all hover:bg-polar-teal active:scale-[0.98]"
           >
-            {navLinks.map((link, i) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                onClick={() => setMenuOpen(false)}
-                className={`group flex items-center gap-4 rounded-xl py-3 transition-all duration-500 ${
-                  menuOpen
-                    ? "translate-x-0 opacity-100"
-                    : "-translate-x-8 opacity-0"
-                }`}
-                style={{
-                  transitionDelay: menuOpen ? `${150 + i * 50}ms` : "0ms",
-                }}
-              >
-                <span className="hidden w-8 font-mono text-xs text-muted lg:block">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span className="h-6 w-0 rounded-full bg-glacier" />
-                <span className="font-display text-3xl font-600 text-navy sm:text-4xl lg:text-6xl">
-                  {link.label}
-                </span>
-              </Link>
-            ))}
-          </nav>
-
-          {/* Info panel (desktop) */}
-          <aside
-            className={`hidden flex-col gap-8 border-l border-border pl-8 transition-all lg:col-span-5 lg:flex ${
-              menuOpen
-                ? "translate-y-0 opacity-100 delay-[400ms] duration-[600ms]"
-                : "translate-y-4 opacity-0 duration-300"
-            }`}
-          >
-            <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-border">
-              <Image
-                src="https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=800&q=80"
-                alt="Northern lights over Greenland"
-                fill
-                className="object-cover"
-              />
-            </div>
-
-            <div className="space-y-6">
-              <div>
-                <p className="mb-1.5 text-[11px] font-600 uppercase tracking-[0.12em] text-muted">
-                  Email
-                </p>
-                <a
-                  href="mailto:info@greenland-explorers.com"
-                  className="text-sm text-charcoal underline decoration-glacier/30 underline-offset-2 transition-colors duration-200 hover:text-glacier"
-                >
-                  info@greenland-explorers.com
-                </a>
-              </div>
-              <div>
-                <p className="mb-1.5 text-[11px] font-600 uppercase tracking-[0.12em] text-muted">
-                  Location
-                </p>
-                <p className="text-sm text-charcoal">
-                  12 Harbor Road, Ilulissat<br />Greenland
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-5 pt-2">
-              {["Instagram", "Facebook", "YouTube"].map((name) => (
-                <a
-                  key={name}
-                  href="#"
-                  className="text-xs font-600 uppercase tracking-wider text-muted transition-colors duration-200 hover:text-glacier"
-                >
-                  {name}
-                </a>
-              ))}
-            </div>
-          </aside>
+            Get in Touch
+          </Link>
         </div>
       </div>
     </>

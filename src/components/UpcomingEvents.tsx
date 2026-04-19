@@ -131,13 +131,13 @@ export default function UpcomingEvents() {
               ? [1, 2, 3, 4].map((i) => (
                   <div
                     key={i}
-                    className="w-[300px] flex-shrink-0 snap-start animate-pulse rounded-xl bg-white sm:w-[360px] lg:w-[390px] h-[460px]"
+                    className="w-[85vw] flex-shrink-0 snap-start animate-pulse rounded-xl bg-white sm:w-[360px] lg:w-[390px] h-[460px]"
                   />
                 ))
               : events.map((event, i) => (
                   <div
                     key={event.id}
-                    className={`w-[300px] flex-shrink-0 snap-start transition-all duration-500 sm:w-[360px] lg:w-[390px] h-[460px] ${
+                    className={`w-[85vw] flex-shrink-0 snap-start transition-all duration-500 sm:w-[360px] lg:w-[390px] h-[460px] ${
                       visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
                     }`}
                     style={{ transitionDelay: visible ? `${200 + i * 100}ms` : "0ms" }}
