@@ -1,12 +1,19 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 const TO_EMAIL = process.env.CONTACT_EMAIL || "info@gax.gl";
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
 
 export async function POST(req: Request) {
+  if (!process.env.RESEND_API_KEY) {
+    return NextResponse.json(
+      { error: "Email service is not configured yet." },
+      { status: 503 },
+    );
+  }
+
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
   try {
     const body = await req.json();
     const { name, email, phone, subject, message } = body as {
