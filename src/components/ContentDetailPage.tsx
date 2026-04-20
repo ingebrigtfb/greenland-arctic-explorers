@@ -350,12 +350,20 @@ export default function ContentDetailPage({
 
               {(item.videoUrl || (item.gallery && item.gallery.length > 0)) && (
                 <div className={item.longDescription ? "lg:col-span-5" : "lg:col-span-8 lg:col-start-3"}>
+                  {item.gallery && item.gallery.length > 0 && (
+                    <GalleryImages
+                      images={item.gallery}
+                      title={item.title}
+                      hasVideo={!!item.videoUrl}
+                    />
+                  )}
+
                   {item.videoUrl && (() => {
                     const embedUrl = getEmbedUrl(item.videoUrl);
                     if (!embedUrl) return null;
                     return (
-                      <div>
-                        <div className="mb-8">
+                      <div className={item.gallery && item.gallery.length > 0 ? "mt-10" : ""}>
+                        <div className="mb-6">
                           <div className="h-px w-12 bg-arctic-orange" />
                           <p className="mt-4 flex items-center gap-2 font-heading text-xs font-600 uppercase tracking-[0.2em] text-granite">
                             <Play aria-hidden="true" className="h-3.5 w-3.5" />
@@ -374,14 +382,6 @@ export default function ContentDetailPage({
                       </div>
                     );
                   })()}
-
-                  {item.gallery && item.gallery.length > 0 && (
-                    <GalleryImages
-                      images={item.gallery}
-                      title={item.title}
-                      hasVideo={!!item.videoUrl}
-                    />
-                  )}
                 </div>
               )}
             </div>

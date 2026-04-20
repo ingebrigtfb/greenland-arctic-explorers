@@ -364,7 +364,7 @@ export async function getBokunRaceDetail(id: string): Promise<BokunRaceDetail> {
   }
 
   type BokunLocationCode = { location?: string | null } | null | undefined;
-  type BokunVideo = { url?: string | null };
+  type BokunVideo = { url?: string | null; sourceUrl?: string | null; videoUrl?: string | null; youtubeUrl?: string | null };
   type BokunActivityDetail = {
     id?: string | number | null;
     title?: string | null;
@@ -376,6 +376,10 @@ export async function getBokunRaceDetail(id: string): Promise<BokunRaceDetail> {
     durationText?: string | null;
     locationCode?: BokunLocationCode;
     videos?: BokunVideo[] | null;
+    videoUrl?: string | null;
+    youtubeVideoId?: string | null;
+    youtubeUrl?: string | null;
+    vimeoUrl?: string | null;
   };
 
   const json: unknown = await res.json();
@@ -383,6 +387,18 @@ export async function getBokunRaceDetail(id: string): Promise<BokunRaceDetail> {
   const galleryPhotos: BokunImage[] = Array.isArray(item.photos)
     ? item.photos.map((p) => mapBokunPhoto(p)).filter((p): p is BokunImage => Boolean(p))
     : [];
+
+  function resolveVideoUrl(): string | undefined {
+    if (item.youtubeVideoId) return `https://www.youtube.com/watch?v=${item.youtubeVideoId}`;
+    if (item.youtubeUrl) return String(item.youtubeUrl);
+    if (item.vimeoUrl) return String(item.vimeoUrl);
+    if (item.videoUrl) return String(item.videoUrl);
+    if (Array.isArray(item.videos) && item.videos.length > 0) {
+      const v = item.videos[0];
+      return v.sourceUrl ? String(v.sourceUrl) : v.url ? String(v.url) : v.videoUrl ? String(v.videoUrl) : v.youtubeUrl ? String(v.youtubeUrl) : undefined;
+    }
+    return undefined;
+  }
 
   return {
     id: String(item.id ?? id),
@@ -396,8 +412,7 @@ export async function getBokunRaceDetail(id: string): Promise<BokunRaceDetail> {
     duration: item.durationText ? String(item.durationText) : undefined,
     location: item.locationCode?.location ? String(item.locationCode.location) : undefined,
     date: undefined,
-    videoUrl:
-      Array.isArray(item.videos) && item.videos[0]?.url ? String(item.videos[0].url) : undefined,
+    videoUrl: resolveVideoUrl(),
     source: "bokun",
   };
 }
