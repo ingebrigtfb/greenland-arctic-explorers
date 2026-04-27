@@ -158,7 +158,7 @@ function matchesProductCode(externalId: unknown, productCode: string) {
 async function listBokunByProductCode(productCode: string, collection: string): Promise<BokunRaceCard[]> {
   const lang = process.env.BOKUN_RACE_LANG ?? "EN";
   const currency = process.env.BOKUN_RACE_CURRENCY ?? "DKK";
-  const pageSize = Number(process.env.BOKUN_RACE_PAGE_SIZE ?? process.env.BOKUN_LIST_PAGE_SIZE ?? "12");
+  const pageSize = Number(process.env.BOKUN_RACE_PAGE_SIZE ?? process.env.BOKUN_LIST_PAGE_SIZE ?? "100");
 
   const pathWithQuery = `/activity.json/search?lang=${encodeURIComponent(lang)}&currency=${encodeURIComponent(currency)}`;
   const dateStr = utcStamp(new Date());

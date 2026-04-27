@@ -13,7 +13,7 @@ export default function ArcticLodgesPage() {
       <div className="relative overflow-hidden pb-24 pt-40 min-h-[420px]">
         <div className="absolute inset-0">
           <Image
-            src="/races.JPEG"
+            src="/races1.JPEG"
             alt="Greenland arctic landscape"
             fill
             priority
