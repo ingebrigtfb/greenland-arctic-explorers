@@ -9,9 +9,7 @@ export default function ExploreTerritory() {
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setVisible(true);
-      },
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
       { threshold: 0.2 }
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
@@ -32,9 +30,7 @@ export default function ExploreTerritory() {
         {/* Text column */}
         <div
           className={`transition-all duration-700 ${
-            visible
-              ? "translate-x-0 opacity-100"
-              : "-translate-x-8 opacity-0"
+            visible ? "translate-x-0 opacity-100" : "-translate-x-8 opacity-0"
           }`}
         >
           <p className="mb-3 font-heading text-xs font-600 uppercase tracking-[0.15em] text-polar-teal">
@@ -64,9 +60,7 @@ export default function ExploreTerritory() {
         {/* Map column */}
         <div
           className={`flex justify-center transition-all duration-700 delay-200 ${
-            visible
-              ? "translate-x-0 opacity-100"
-              : "translate-x-8 opacity-0"
+            visible ? "translate-x-0 opacity-100" : "translate-x-8 opacity-0"
           }`}
         >
           <div className="relative">

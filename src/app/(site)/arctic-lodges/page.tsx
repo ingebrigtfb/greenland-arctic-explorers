@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import BokunEventCards from "@/components/BokunEventCards";
-import Image from "next/image";
+import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
   title: "Arctic Lodges — Greenland Arctic Xplorers",
@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 export default function ArcticLodgesPage() {
   return (
     <section className="bg-frost-light pb-24">
+<<<<<<< Updated upstream
       <div className="relative overflow-hidden pb-24 pt-40 min-h-[420px]">
         <div className="absolute inset-0">
           <Image
@@ -49,8 +50,27 @@ export default function ArcticLodgesPage() {
           </svg>
         </div>
       </div>
+=======
+      <PageHero
+        image="/races2.JPEG"
+        alt="Colorful Greenlandic cabins at the edge of a fjord"
+        breadcrumb="Arctic Lodges"
+        eyebrow="Accommodation"
+        title="Arctic Lodges"
+        lede="Experience comfort in the heart of the Arctic. Our lodges and cabins offer warm hospitality, stunning fjord views, and a true wilderness retreat after each day's adventure."
+        focal="72% 55%"
+      />
+>>>>>>> Stashed changes
 
       <BokunEventCards
+        tone="lodges"
+        viewLabel="View lodge"
+        intro={{
+          tag: "Stay · All lodges",
+          title: "Find your Arctic base camp",
+          description:
+            "From cedar fjord cabins to full-service wilderness lodges — each stay pairs warm hospitality with access to our guided activities.",
+        }}
         fetchUrl="/api/bokun/lodges"
         linkBase="/arctic-lodges"
         emptyTitle="No upcoming lodges"

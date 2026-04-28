@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import BokunEventCards from "@/components/BokunEventCards";
-import Image from "next/image";
+import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
   title: "Tours — Greenland Arctic Xplorers",
@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 export default function ToursPage() {
   return (
     <section className="bg-frost-light pb-24">
+<<<<<<< Updated upstream
       {/* Page header with background image (same layout as races) */}
       <div className="relative overflow-hidden pb-24 pt-40 min-h-[420px]">
         <div className="absolute inset-0">
@@ -53,8 +54,27 @@ export default function ToursPage() {
           </svg>
         </div>
       </div>
+=======
+      <PageHero
+        image="/CTAImageSection.JPEG"
+        alt="Aerial view of a boat moored beside an iceberg in Greenland"
+        breadcrumb="Tours"
+        eyebrow="Our Expeditions"
+        title="Tours"
+        lede="Discover our curated selection of Arctic expeditions — from glacier treks and fjord kayaking to multi‑day wilderness crossings. Each tour is led by expert local guides."
+        focal="60% center"
+      />
+>>>>>>> Stashed changes
 
       <BokunEventCards
+        tone="tours"
+        viewLabel="View tour"
+        intro={{
+          tag: "Expeditions · All itineraries",
+          title: "Multi‑day journeys into the Arctic",
+          description:
+            "Flagship expeditions from 3-day glacier approaches to 14-day circumnavigations — meals, lodges and transfers included.",
+        }}
         fetchUrl="/api/bokun/tours"
         linkBase="/tours"
         emptyTitle="No upcoming tours"
