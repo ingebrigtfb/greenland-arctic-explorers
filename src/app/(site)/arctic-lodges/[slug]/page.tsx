@@ -1,14 +1,7 @@
 "use client";
 
-import ContentDetailPage from "@/components/ContentDetailPage";
+import LodgeDetailPage from "@/components/LodgeDetailPage";
 
-export default function LodgeDetailPage() {
-  return (
-    <ContentDetailPage
-      collection="lodges"
-      label="Lodge"
-      labelPlural="Arctic Lodges"
-      backHref="/arctic-lodges"
-    />
-  );
+export default function LodgePage() {
+  return <LodgeDetailPage />;
 }

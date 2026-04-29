@@ -48,7 +48,7 @@ export default function BokunEventCards({
 
   return (
     // Negative top margin lets cards tuck into the hero above.
-    <div className="relative z-30 -mt-[120px] bg-frost-light pb-6">
+    <div className="relative z-30 bg-frost-light pt-14 pb-6">
       {intro && (
         <div className="mx-auto mb-9 max-w-[1280px] px-6 lg:px-12">
           <div className="max-w-[720px]">

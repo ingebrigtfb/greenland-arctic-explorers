@@ -41,6 +41,7 @@ export type BokunRaceDetail = {
   price?: number;
   duration?: string;
   location?: string;
+  meetingPoint?: string;
   date?: string;
   videoUrl?: string;
   source: "bokun";
@@ -286,6 +287,12 @@ export async function listBokunMapPoints(): Promise<BokunMapPoint[]> {
     city?: string | null;
     geoLocationCenter?: BokunGeoCenter;
   } | null;
+  type BokunStartLocation = {
+    lat?: number | null;
+    lng?: number | null;
+    geoLocation?: BokunGeoCenter;
+    googlePlace?: BokunGooglePlace;
+  } | null | undefined;
   type BokunActivitySearchItem = {
     id?: string | number | null;
     externalId?: string | null;
@@ -295,6 +302,7 @@ export async function listBokunMapPoints(): Promise<BokunMapPoint[]> {
     durationText?: string | null;
     locationCode?: { location?: string | null } | null;
     googlePlace?: BokunGooglePlace;
+    startLocation?: BokunStartLocation;
     keyPhoto?: unknown;
   };
 
@@ -303,13 +311,25 @@ export async function listBokunMapPoints(): Promise<BokunMapPoint[]> {
   const items: BokunActivitySearchItem[] = Array.isArray(itemsRaw) ? (itemsRaw as BokunActivitySearchItem[]) : [];
 
   const points: BokunMapPoint[] = [];
+  const missingCoords: { id: string; title: string; item: BokunActivitySearchItem }[] = [];
   for (const item of items) {
     const id = item.id == null ? "" : String(item.id);
     const title = String(item.title ?? "");
-    const center = item.googlePlace?.geoLocationCenter;
+
+    // Prefer googlePlace coords, fall back to startLocation coords
+    const googleCenter = item.googlePlace?.geoLocationCenter;
+    const startCenter =
+      item.startLocation?.geoLocation ??
+      (item.startLocation?.lat != null ? item.startLocation : null) ??
+      item.startLocation?.googlePlace?.geoLocationCenter;
+    const center = googleCenter ?? startCenter;
+
     const lat = typeof center?.lat === "number" ? center.lat : NaN;
     const lng = typeof center?.lng === "number" ? center.lng : NaN;
-    if (!id || !title || !Number.isFinite(lat) || !Number.isFinite(lng)) continue;
+    if (!id || !title || !Number.isFinite(lat) || !Number.isFinite(lng)) {
+      missingCoords.push({ id, title, item });
+      continue;
+    }
 
     const slug = `${slugify(title)}-${id}`;
     const featuredImageUrl = getDerivedImageUrl(item.keyPhoto) ?? undefined;
@@ -330,10 +350,54 @@ export async function listBokunMapPoints(): Promise<BokunMapPoint[]> {
         item.locationCode?.location ??
         item.googlePlace?.city ??
         item.googlePlace?.name ??
+        item.startLocation?.googlePlace?.city ??
+        item.startLocation?.googlePlace?.name ??
         undefined,
       lat,
       lng,
     });
+  }
+
+  // For items missing search-endpoint coords, fetch their detail to extract startPoints coords
+  if (missingCoords.length > 0) {
+    await Promise.allSettled(
+      missingCoords.slice(0, 20).map(async ({ id, title, item }) => {
+        const detailPath = `/activity.json/${encodeURIComponent(id)}?lang=${encodeURIComponent(lang)}&currency=${encodeURIComponent(currency)}`;
+        const ds = utcStamp(new Date());
+        const sig = signRequest({ method: "GET", pathWithQuery: detailPath, dateStr: ds });
+        const dr = await fetch(bokunBaseUrl() + detailPath, {
+          method: "GET",
+          headers: { "X-Bokun-Date": ds, "X-Bokun-AccessKey": getRequiredEnv("BOKUN_ACCESS_KEY"), "X-Bokun-Signature": sig },
+        });
+        if (!dr.ok) return;
+
+        type StartPoint = { address?: { geoPoint?: { latitude?: number | null; longitude?: number | null } | null; city?: string | null; addressLine1?: string | null } | null };
+        const detail = (await dr.json()) as { startPoints?: StartPoint[] };
+        const sp = Array.isArray(detail.startPoints) ? detail.startPoints[0] : undefined;
+        const geoPoint = sp?.address?.geoPoint;
+        const lat = typeof geoPoint?.latitude === "number" ? geoPoint.latitude : NaN;
+        const lng = typeof geoPoint?.longitude === "number" ? geoPoint.longitude : NaN;
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+
+        const slug = `${slugify(title)}-${id}`;
+        const priceNum = typeof item.price === "number" ? item.price : Number(item.price);
+        points.push({
+          id,
+          title,
+          externalId: item.externalId ?? undefined,
+          slug,
+          href: hrefForExternalId(item.externalId, slug),
+          featuredImageUrl: getDerivedImageUrl(item.keyPhoto) ?? undefined,
+          shortDescription: item.excerpt ? String(item.excerpt) : undefined,
+          price: Number.isFinite(priceNum) ? priceNum : undefined,
+          duration: item.durationText ? String(item.durationText) : undefined,
+          location: item.locationCode?.location ? String(item.locationCode.location) : undefined,
+          locationName: item.locationCode?.location ?? sp?.address?.city ?? sp?.address?.addressLine1 ?? undefined,
+          lat,
+          lng,
+        });
+      })
+    );
   }
 
   // Keep stable ordering (useful for debugging)
@@ -375,6 +439,8 @@ export async function getBokunRaceDetail(id: string): Promise<BokunRaceDetail> {
     price?: number | string | null;
     durationText?: string | null;
     locationCode?: BokunLocationCode;
+    startAddress?: string | null;
+    meetingPoint?: string | null;
     videos?: BokunVideo[] | null;
     videoUrl?: string | null;
     youtubeVideoId?: string | null;
@@ -411,6 +477,7 @@ export async function getBokunRaceDetail(id: string): Promise<BokunRaceDetail> {
     price: typeof item.price === "number" ? item.price : Number(item.price),
     duration: item.durationText ? String(item.durationText) : undefined,
     location: item.locationCode?.location ? String(item.locationCode.location) : undefined,
+    meetingPoint: item.startAddress ? String(item.startAddress) : item.meetingPoint ? String(item.meetingPoint) : undefined,
     date: undefined,
     videoUrl: resolveVideoUrl(),
     source: "bokun",

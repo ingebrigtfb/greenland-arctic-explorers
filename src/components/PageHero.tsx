@@ -37,13 +37,13 @@ export default function PageHero({
   lede,
   primaryCta,
   secondaryCta,
-  breadcrumb,
+  breadcrumb: _breadcrumb,
   focal = "center",
 }: PageHeroProps) {
   return (
-    <section className="relative w-full overflow-hidden bg-arctic-navy h-[620px] lg:h-[720px]">
+    <section className="relative w-full bg-arctic-navy h-[620px] lg:h-[720px]">
       {/* Photo */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 overflow-hidden">
         <Image
           src={image}
           alt={alt}
@@ -67,12 +67,6 @@ export default function PageHero({
       <div className="relative z-10 h-full w-full pt-32 pb-36 lg:pt-40 lg:pb-44">
         <div className="mx-auto flex h-full max-w-[1280px] items-end px-6 lg:px-12">
           <div className="max-w-[640px] text-white" style={{ textShadow: "0 2px 16px rgba(0,0,0,0.4)" }}>
-            <div className="mb-5 flex items-center gap-2.5 font-heading text-[11px] font-600 uppercase tracking-[0.18em] text-white/70">
-              <span>Home</span>
-              <span className="opacity-40">/</span>
-              <span className="text-frost">{breadcrumb}</span>
-            </div>
-
             <div className="mb-5 inline-flex items-center gap-2.5 font-heading text-xs font-700 uppercase tracking-[0.22em] text-arctic-orange">
               <span aria-hidden className="h-[2px] w-7 bg-arctic-orange" />
               {eyebrow}
@@ -111,27 +105,17 @@ export default function PageHero({
         </div>
       </div>
 
-      {/* Bottom fade → frost-light so the cards section below can tuck in */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-[4] h-[160px]"
-        style={{
-          background:
-            "linear-gradient(180deg, rgba(232,244,255,0) 0%, rgba(232,244,255,0) 35%, #E8F4FF 100%)",
-        }}
-      />
-
       {/* Wavy frost divider */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[5]">
+      <div className="pointer-events-none absolute -bottom-px inset-x-0 z-20">
         <svg
-          viewBox="0 0 1440 80"
+          viewBox="0 0 1440 120"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           className="block w-full"
           preserveAspectRatio="none"
         >
           <path
-            d="M0 40 C240 80 480 0 720 40 C960 80 1200 0 1440 40 L1440 80 L0 80Z"
+            d="M0 60 C240 120 480 0 720 60 C960 120 1200 0 1440 60 L1440 120 L0 120Z"
             className="fill-frost-light"
           />
         </svg>

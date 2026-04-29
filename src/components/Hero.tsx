@@ -26,13 +26,20 @@ export default function Hero() {
           priority
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-arctic-navy/60 via-arctic-navy/30 to-arctic-navy/70" />
+        <div
+          aria-hidden
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(100deg, rgba(13,27,42,0.88) 0%, rgba(13,27,42,0.65) 34%, rgba(13,27,42,0.2) 62%, rgba(13,27,42,0) 82%), linear-gradient(180deg, rgba(13,27,42,0.45) 0%, rgba(13,27,42,0) 22%, rgba(13,27,42,0) 55%, rgba(13,27,42,0.5) 100%)",
+          }}
+        />
       </div>
 
       {/* Content row: text left, map right */}
-      <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 pt-16 pb-16 lg:mx-auto lg:max-w-5xl lg:flex-row lg:items-center lg:justify-center lg:gap-16">
-        <div className="max-w-xl text-center drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)] lg:text-left lg:space-y-3">
-          <h1 className="mb-2 font-display text-[clamp(2.8rem,6vw,4.8rem)] font-800 leading-[1.05] tracking-tight text-white">
+      <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 pt-16 lg:mx-auto lg:max-w-[1280px] lg:flex-row lg:items-center lg:justify-between lg:px-12 lg:gap-16">
+        <div className="max-w-xl text-center drop-shadow-[0_2px_16px_rgba(0,0,0,0.7)] lg:text-left">
+          <h1 className="mb-2 font-display text-[clamp(3rem,8vw,6.5rem)] font-800 leading-[1.05] tracking-tight text-white">
             Greenland
           </h1>
           <p className="mb-4 font-heading text-[clamp(1.25rem,3vw,2rem)] font-medium tracking-[0.08em] text-frost">
@@ -49,13 +56,13 @@ export default function Hero() {
           </a>
         </div>
 
-        <div className="hidden mt-8 justify-center lg:flex lg:mt-0 lg:ml-12">
+        <div className="hidden justify-center lg:flex">
           <Image
             src="/greenland_white_outline.png"
             alt="Stylized map of Greenland"
             width={420}
             height={420}
-            className="h-auto w-[min(220px,55vw)] opacity-60 drop-shadow-[0_4px_20px_rgba(0,0,0,0.45)] lg:w-[340px]"
+            className="h-auto w-[340px] opacity-60 drop-shadow-[0_4px_20px_rgba(0,0,0,0.45)]"
           />
         </div>
       </div>

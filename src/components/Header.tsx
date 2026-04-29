@@ -17,12 +17,13 @@ const navLinks = [
 
 export default function Header() {
   const pathname = usePathname();
-  const isHome = pathname === "/";
-  const [scrolled, setScrolled] = useState(!isHome);
+  const heroPages = ["/", "/tours", "/races", "/arctic-lodges", "/activities"];
+  const isHeroPage = heroPages.includes(pathname);
+  const [scrolled, setScrolled] = useState(!isHeroPage);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    if (!isHome) {
+    if (!isHeroPage) {
       setScrolled(true);
       return;
     }
@@ -30,7 +31,7 @@ export default function Header() {
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [isHome]);
+  }, [isHeroPage]);
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
