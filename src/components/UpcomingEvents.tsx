@@ -161,13 +161,13 @@ export default function UpcomingEvents() {
             {/* Featured card */}
             <Link
               href={`/${featured.collection}/${featured.slug}`}
-              className={`group block overflow-hidden rounded-xl bg-white shadow-[0_1px_3px_rgba(0,0,0,0.06),0_6px_20px_rgba(0,0,0,0.06)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] ${
+              className={`group flex flex-col overflow-hidden rounded-xl bg-white shadow-[0_1px_3px_rgba(0,0,0,0.06),0_6px_20px_rgba(0,0,0,0.06)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] ${
                 visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
               }`}
               style={{ transitionDelay: visible ? "200ms" : "0ms" }}
             >
 
-              <div className="relative h-[420px] -mb-px overflow-hidden">
+              <div className="relative h-[220px] flex-shrink-0 -mb-px overflow-hidden lg:h-auto lg:flex-1 lg:min-h-[380px]">
                 {featured.featuredImage?.url ? (
                   <Image
                     src={featured.featuredImage.url}
@@ -199,7 +199,7 @@ export default function UpcomingEvents() {
                   </svg>
                 </div>
               </div>
-              <div className="p-6">
+              <div className="p-4 lg:p-6">
                 <h3 className="mb-2 font-heading text-xl font-700 leading-snug text-arctic-navy">
                   {featured.title}
                 </h3>

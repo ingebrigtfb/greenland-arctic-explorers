@@ -17,8 +17,10 @@ const navLinks = [
 
 export default function Header() {
   const pathname = usePathname();
-  const heroPages = ["/", "/tours", "/races", "/arctic-lodges", "/activities"];
-  const isHeroPage = heroPages.includes(pathname);
+  const isHeroPage =
+    pathname === "/" ||
+    ["/tours", "/races", "/activities"].some(r => pathname === r || pathname.startsWith(r + "/")) ||
+    pathname === "/arctic-lodges";
   const [scrolled, setScrolled] = useState(!isHeroPage);
   const [menuOpen, setMenuOpen] = useState(false);
 
