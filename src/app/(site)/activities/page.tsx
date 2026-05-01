@@ -11,7 +11,7 @@ export default function ActivitiesPage() {
   return (
     <section className="bg-frost-light pb-24">
       <PageHero
-        image="/hero1.JPEG"
+        image="/races1.JPEG"
         alt="Kayak and boat beside an iceberg in a Greenland fjord"
         breadcrumb="Activities"
         eyebrow="Things To Do"

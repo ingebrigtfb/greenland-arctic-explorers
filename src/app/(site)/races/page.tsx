@@ -5,7 +5,7 @@ export default function RacesPage() {
   return (
     <section className="bg-frost-light pb-24">
       <PageHero
-        image="/races1.JPEG"
+        image="/races.jpeg"
         alt="Iceberg against a dark Greenland mountain slope"
         breadcrumb="Races"
         eyebrow="Endurance Events"
