@@ -530,7 +530,7 @@ function GalleryImages({
                   src={img.url}
                   alt={img.alt || `${title} gallery image ${i + 1}`}
                   fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="object-cover"
                 />
                 <div className="absolute inset-0 bg-arctic-navy/0 transition-colors duration-300 group-hover:bg-arctic-navy/10" />
               </div>

@@ -2,19 +2,19 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { ArrowRight, Users, Home } from "lucide-react";
-import { getPublishedItems } from "@/lib/content";
-import type { CollectionItem } from "@/lib/types";
+import { ArrowRight, Home, Users } from "lucide-react";
+import type { BokunRaceCard } from "@/lib/bokun";
 
 export default function FeaturedTours() {
   const sectionRef = useRef<HTMLElement>(null);
   const [visible, setVisible] = useState(false);
-  const [lodges, setLodges] = useState<CollectionItem[]>([]);
+  const [lodges, setLodges] = useState<BokunRaceCard[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getPublishedItems("lodges")
-      .then(setLodges)
+    fetch("/api/bokun/lodges")
+      .then(r => r.json())
+      .then(data => setLodges(data?.items ?? []))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -87,7 +87,7 @@ export default function FeaturedTours() {
                         src={lodge.featuredImage.url}
                         alt={lodge.title}
                         fill
-                        className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                        className="object-cover"
                       />
                     ) : (
                       <div className="flex h-full items-center justify-center bg-glacier/10">
@@ -106,7 +106,7 @@ export default function FeaturedTours() {
                       )}
                       {lodge.price && (
                         <span className="rounded-lg bg-white/90 px-3 py-1.5 font-heading text-xs font-700 text-arctic-navy backdrop-blur-sm">
-                          {lodge.price}
+                          {lodge.price.toLocaleString("da-DK")} DKK
                         </span>
                       )}
                     </div>
@@ -135,7 +135,7 @@ export default function FeaturedTours() {
                       </p>
                     )}
                     <a
-                      href={`/arctic-lodges/${lodge.slug}`}
+                      href={`/arctic-lodges/${lodge.slug ?? lodge.id}`}
                       className="inline-flex items-center gap-1.5 font-heading text-[13px] font-600 text-glacier transition-colors hover:text-polar-teal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glacier rounded"
                     >
                       View Details

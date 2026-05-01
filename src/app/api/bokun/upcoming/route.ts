@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { listBokunRaces, listBokunTours, listBokunActivities } from "@/lib/bokun";
+import { listBokunRaces, listBokunTours, listBokunActivities, listBokunLodges } from "@/lib/bokun";
 
 export async function GET() {
   const today = new Date().toISOString().slice(0, 10);
@@ -8,6 +8,7 @@ export async function GET() {
     listBokunRaces(),
     listBokunTours(),
     listBokunActivities(),
+    listBokunLodges(),
   ]);
 
   const all = results.flatMap((r) => (r.status === "fulfilled" ? r.value : []));

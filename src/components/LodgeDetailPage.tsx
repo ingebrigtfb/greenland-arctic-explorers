@@ -298,7 +298,7 @@ function PhotoGrid({ photos, title, onOpen }: { photos: GalleryImage[]; title: s
     return (
       <button onClick={() => onOpen(0)} className="group relative block w-full overflow-hidden rounded-2xl">
         <div className="relative aspect-[16/7] w-full">
-          <Image src={photos[0].url} alt={title} fill className="object-cover transition-transform duration-500 group-hover:scale-[1.02]" />
+          <Image src={photos[0].url} alt={title} fill className="object-cover" />
         </div>
       </button>
     );
@@ -308,13 +308,13 @@ function PhotoGrid({ photos, title, onOpen }: { photos: GalleryImage[]; title: s
     <div className="relative overflow-hidden rounded-2xl">
       <div className="grid h-[480px] grid-cols-2 gap-2">
         <button onClick={() => onOpen(0)} className="group relative overflow-hidden">
-          <Image src={photos[0].url} alt={title} fill className="object-cover transition-transform duration-500 group-hover:scale-[1.02]" />
+          <Image src={photos[0].url} alt={title} fill className="object-cover" />
         </button>
         <div className="grid grid-rows-2 gap-2">
           {[1, 2, 3, 4].map(i => (
             photos[i] ? (
               <button key={i} onClick={() => onOpen(i)} className="group relative overflow-hidden">
-                <Image src={photos[i].url} alt={`${title} ${i + 1}`} fill className="object-cover transition-transform duration-500 group-hover:scale-[1.02]" sizes="25vw" />
+                <Image src={photos[i].url} alt={`${title} ${i + 1}`} fill className="object-cover" sizes="25vw" />
               </button>
             ) : (
               <div key={i} className="bg-mist" />

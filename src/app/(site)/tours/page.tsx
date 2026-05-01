@@ -26,8 +26,6 @@ export default function ToursPage() {
         intro={{
           tag: "Expeditions · All itineraries",
           title: "Multi‑day journeys into the Arctic",
-          description:
-            "Flagship expeditions from 3-day glacier approaches to 14-day circumnavigations — meals, lodges and transfers included.",
         }}
         fetchUrl="/api/bokun/tours"
         linkBase="/tours"

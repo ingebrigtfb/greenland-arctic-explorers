@@ -71,7 +71,7 @@ export default function BokunEventCard({
             src={ev.featuredImage.url}
             alt={ev.title}
             fill
-            className="object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.06]"
+            className="object-cover"
             sizes="(max-width:768px) 100vw, 33vw"
           />
         ) : (

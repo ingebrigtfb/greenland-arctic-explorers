@@ -26,8 +26,6 @@ export default function ActivitiesPage() {
         intro={{
           tag: "Browse · All experiences",
           title: "Pick your Arctic moment",
-          description:
-            "Half‑day introductions to multi‑day adventures — all led by certified local guides with safety gear and transfers included.",
         }}
         fetchUrl="/api/bokun/activities"
         linkBase="/activities"

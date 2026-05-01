@@ -8,7 +8,7 @@ type BokunListItem = Omit<BokunEventCardData, "href"> & { slug: string };
 export type SectionIntro = {
   tag: string;
   title: string;
-  description: string;
+  description?: string;
 };
 
 const toneDot: Record<CardTone, string> = {
@@ -63,7 +63,7 @@ export default function BokunEventCards({
             <h2 className="m-0 mb-2.5 font-display text-3xl font-700 tracking-[-0.02em] text-arctic-navy lg:text-4xl">
               {intro.title}
             </h2>
-            <p className="m-0 font-body text-[15px] leading-relaxed text-stone">{intro.description}</p>
+            {intro.description && <p className="m-0 font-body text-[15px] leading-relaxed text-stone">{intro.description}</p>}
           </div>
         </div>
       )}

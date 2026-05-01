@@ -26,8 +26,6 @@ export default function ArcticLodgesPage() {
         intro={{
           tag: "Stay · All lodges",
           title: "Find your Arctic base camp",
-          description:
-            "From cedar fjord cabins to full-service wilderness lodges — each stay pairs warm hospitality with access to our guided activities.",
         }}
         fetchUrl="/api/bokun/lodges"
         linkBase="/arctic-lodges"

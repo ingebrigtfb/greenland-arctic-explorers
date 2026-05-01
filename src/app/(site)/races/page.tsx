@@ -20,8 +20,6 @@ export default function RacesPage() {
         intro={{
           tag: "Upcoming · All events",
           title: "Find your start line",
-          description:
-            "From the Polar Circle Ultra to short trail events around Nuuk — each race is staffed by local guides and medics, with refuel stations across the course.",
         }}
         fetchUrl="/api/bokun/races"
         linkBase="/races"
