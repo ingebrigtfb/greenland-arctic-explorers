@@ -69,8 +69,8 @@ export default function TourMap() {
     const map = new mapboxgl.Map({
       container: mapContainer.current,
       style: "mapbox://styles/mapbox/outdoors-v12",
-      center: [-42, 68],
-      zoom: 3.8,
+      center: [-51.72, 64.18],
+      zoom: 9,
       minZoom: 3,
       maxZoom: 12,
       pitch: 0,

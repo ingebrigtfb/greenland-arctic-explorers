@@ -31,7 +31,14 @@ export default function CTASection() {
           fill
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-arctic-navy/50 via-arctic-navy/30 to-arctic-navy/50" />
+        <div
+          aria-hidden
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(100deg, rgba(13,27,42,0.88) 0%, rgba(13,27,42,0.65) 34%, rgba(13,27,42,0.2) 62%, rgba(13,27,42,0) 82%), linear-gradient(180deg, rgba(13,27,42,0.45) 0%, rgba(13,27,42,0) 22%, rgba(13,27,42,0) 55%, rgba(13,27,42,0.5) 100%)",
+          }}
+        />
       </div>
 
       <div

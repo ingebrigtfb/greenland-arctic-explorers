@@ -310,94 +310,71 @@ export async function listBokunMapPoints(): Promise<BokunMapPoint[]> {
   const itemsRaw: unknown = (json as { items?: unknown })?.items;
   const items: BokunActivitySearchItem[] = Array.isArray(itemsRaw) ? (itemsRaw as BokunActivitySearchItem[]) : [];
 
+  type StartPoint = { address?: { geoPoint?: { latitude?: number | null; longitude?: number | null } | null; city?: string | null; addressLine1?: string | null } | null };
+
+  // Fetch all activity details in parallel so we can prefer startPoints over googlePlace
+  const validItems = items.filter(item => item.id != null && String(item.title ?? "").trim());
+  const detailMap = new Map<string, { startPoints?: StartPoint[] }>();
+  await Promise.allSettled(
+    validItems.slice(0, 50).map(async (item) => {
+      const id = String(item.id);
+      const detailPath = `/activity.json/${encodeURIComponent(id)}?lang=${encodeURIComponent(lang)}&currency=${encodeURIComponent(currency)}`;
+      const ds = utcStamp(new Date());
+      const sig = signRequest({ method: "GET", pathWithQuery: detailPath, dateStr: ds });
+      const dr = await fetch(bokunBaseUrl() + detailPath, {
+        method: "GET",
+        headers: { "X-Bokun-Date": ds, "X-Bokun-AccessKey": getRequiredEnv("BOKUN_ACCESS_KEY"), "X-Bokun-Signature": sig },
+      });
+      if (!dr.ok) return;
+      detailMap.set(id, (await dr.json()) as { startPoints?: StartPoint[] });
+    })
+  );
+
   const points: BokunMapPoint[] = [];
-  const missingCoords: { id: string; title: string; item: BokunActivitySearchItem }[] = [];
-  for (const item of items) {
-    const id = item.id == null ? "" : String(item.id);
+  for (const item of validItems) {
+    const id = String(item.id);
     const title = String(item.title ?? "");
 
-    // Prefer googlePlace coords, fall back to startLocation coords
+    // 1st priority: startPoints from detail endpoint
+    const detail = detailMap.get(id);
+    const sp = Array.isArray(detail?.startPoints) ? detail!.startPoints![0] : undefined;
+    const geoPoint = sp?.address?.geoPoint;
+    const spLat = typeof geoPoint?.latitude === "number" ? geoPoint.latitude : NaN;
+    const spLng = typeof geoPoint?.longitude === "number" ? geoPoint.longitude : NaN;
+
+    // 2nd priority: googlePlace / startLocation from search response
     const googleCenter = item.googlePlace?.geoLocationCenter;
-    const startCenter =
+    const fallbackCenter =
       item.startLocation?.geoLocation ??
       (item.startLocation?.lat != null ? item.startLocation : null) ??
-      item.startLocation?.googlePlace?.geoLocationCenter;
-    const center = googleCenter ?? startCenter;
+      item.startLocation?.googlePlace?.geoLocationCenter ??
+      googleCenter;
 
-    const lat = typeof center?.lat === "number" ? center.lat : NaN;
-    const lng = typeof center?.lng === "number" ? center.lng : NaN;
-    if (!id || !title || !Number.isFinite(lat) || !Number.isFinite(lng)) {
-      missingCoords.push({ id, title, item });
-      continue;
-    }
+    const lat = Number.isFinite(spLat) ? spLat : (typeof fallbackCenter?.lat === "number" ? fallbackCenter.lat : NaN);
+    const lng = Number.isFinite(spLng) ? spLng : (typeof fallbackCenter?.lng === "number" ? fallbackCenter.lng : NaN);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
 
     const slug = `${slugify(title)}-${id}`;
-    const featuredImageUrl = getDerivedImageUrl(item.keyPhoto) ?? undefined;
     const priceNum = typeof item.price === "number" ? item.price : Number(item.price);
-    const price = Number.isFinite(priceNum) ? priceNum : undefined;
     points.push({
       id,
       title,
       externalId: item.externalId ?? undefined,
       slug,
       href: hrefForExternalId(item.externalId, slug),
-      featuredImageUrl,
+      featuredImageUrl: getDerivedImageUrl(item.keyPhoto) ?? undefined,
       shortDescription: item.excerpt ? String(item.excerpt) : undefined,
-      price,
+      price: Number.isFinite(priceNum) ? priceNum : undefined,
       duration: item.durationText ? String(item.durationText) : undefined,
       location: item.locationCode?.location ? String(item.locationCode.location) : undefined,
       locationName:
         item.locationCode?.location ??
-        item.googlePlace?.city ??
-        item.googlePlace?.name ??
-        item.startLocation?.googlePlace?.city ??
-        item.startLocation?.googlePlace?.name ??
+        sp?.address?.city ?? sp?.address?.addressLine1 ??
+        item.googlePlace?.city ?? item.googlePlace?.name ??
         undefined,
       lat,
       lng,
     });
-  }
-
-  // For items missing search-endpoint coords, fetch their detail to extract startPoints coords
-  if (missingCoords.length > 0) {
-    await Promise.allSettled(
-      missingCoords.slice(0, 20).map(async ({ id, title, item }) => {
-        const detailPath = `/activity.json/${encodeURIComponent(id)}?lang=${encodeURIComponent(lang)}&currency=${encodeURIComponent(currency)}`;
-        const ds = utcStamp(new Date());
-        const sig = signRequest({ method: "GET", pathWithQuery: detailPath, dateStr: ds });
-        const dr = await fetch(bokunBaseUrl() + detailPath, {
-          method: "GET",
-          headers: { "X-Bokun-Date": ds, "X-Bokun-AccessKey": getRequiredEnv("BOKUN_ACCESS_KEY"), "X-Bokun-Signature": sig },
-        });
-        if (!dr.ok) return;
-
-        type StartPoint = { address?: { geoPoint?: { latitude?: number | null; longitude?: number | null } | null; city?: string | null; addressLine1?: string | null } | null };
-        const detail = (await dr.json()) as { startPoints?: StartPoint[] };
-        const sp = Array.isArray(detail.startPoints) ? detail.startPoints[0] : undefined;
-        const geoPoint = sp?.address?.geoPoint;
-        const lat = typeof geoPoint?.latitude === "number" ? geoPoint.latitude : NaN;
-        const lng = typeof geoPoint?.longitude === "number" ? geoPoint.longitude : NaN;
-        if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
-
-        const slug = `${slugify(title)}-${id}`;
-        const priceNum = typeof item.price === "number" ? item.price : Number(item.price);
-        points.push({
-          id,
-          title,
-          externalId: item.externalId ?? undefined,
-          slug,
-          href: hrefForExternalId(item.externalId, slug),
-          featuredImageUrl: getDerivedImageUrl(item.keyPhoto) ?? undefined,
-          shortDescription: item.excerpt ? String(item.excerpt) : undefined,
-          price: Number.isFinite(priceNum) ? priceNum : undefined,
-          duration: item.durationText ? String(item.durationText) : undefined,
-          location: item.locationCode?.location ? String(item.locationCode.location) : undefined,
-          locationName: item.locationCode?.location ?? sp?.address?.city ?? sp?.address?.addressLine1 ?? undefined,
-          lat,
-          lng,
-        });
-      })
-    );
   }
 
   // Keep stable ordering (useful for debugging)
