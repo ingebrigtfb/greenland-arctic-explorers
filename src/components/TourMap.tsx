@@ -9,6 +9,8 @@ import { MapPin, Clock, ArrowRight, ChevronRight, Calendar } from "lucide-react"
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? "";
 
+type RoutePoint = { lat: number; lng: number; title?: string };
+
 type MapPoint = {
   id: string;
   title: string;
@@ -21,6 +23,7 @@ type MapPoint = {
   locationName?: string;
   lat: number;
   lng: number;
+  route?: RoutePoint[];
 };
 
 function dotColor(href: string): string {
@@ -156,11 +159,74 @@ export default function TourMap() {
 
   useEffect(() => {
     if (!selected) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setSelected(null);
-    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setSelected(null); };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
+  }, [selected]);
+
+  // Draw/remove route line when a point with a route is selected
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.isStyleLoaded()) return;
+
+    const cleanup = () => {
+      if (!mapRef.current) return;
+      try {
+        if (map.getLayer("route-line")) map.removeLayer("route-line");
+        if (map.getLayer("route-start")) map.removeLayer("route-start");
+        if (map.getLayer("route-end")) map.removeLayer("route-end");
+        if (map.getSource("route")) map.removeSource("route");
+        if (map.getSource("route-points")) map.removeSource("route-points");
+      } catch { /* map may have been removed */ }
+    };
+
+    cleanup();
+
+    if (!selected?.route || selected.route.length < 2) return;
+
+    const coords = selected.route.map(p => [p.lng, p.lat] as [number, number]);
+
+    map.addSource("route", {
+      type: "geojson",
+      data: { type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: coords } },
+    });
+    map.addLayer({
+      id: "route-line",
+      type: "line",
+      source: "route",
+      paint: { "line-color": "#FF6E40", "line-width": 3, "line-dasharray": [2, 1.5], "line-opacity": 0.9 },
+    });
+
+    map.addSource("route-points", {
+      type: "geojson",
+      data: {
+        type: "FeatureCollection",
+        features: [
+          { type: "Feature", properties: { label: "S", color: "#22c55e" }, geometry: { type: "Point", coordinates: coords[0] } },
+          { type: "Feature", properties: { label: "F", color: "#FF6E40" }, geometry: { type: "Point", coordinates: coords[coords.length - 1] } },
+        ],
+      },
+    });
+    map.addLayer({
+      id: "route-start",
+      type: "circle",
+      source: "route-points",
+      paint: {
+        "circle-radius": 10,
+        "circle-color": ["get", "color"],
+        "circle-stroke-width": 2,
+        "circle-stroke-color": "#fff",
+      },
+    });
+
+    // Fit map to route
+    const bounds = coords.reduce(
+      (b, c) => b.extend(c as [number, number]),
+      new mapboxgl.LngLatBounds(coords[0], coords[0])
+    );
+    map.fitBounds(bounds, { padding: 80, maxZoom: 12, duration: 800 });
+
+    return cleanup;
   }, [selected]);
 
   const close = useCallback(() => setSelected(null), []);

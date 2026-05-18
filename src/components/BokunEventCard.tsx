@@ -128,7 +128,7 @@ export default function BokunEventCard({
         )}
 
         <div className="flex items-center gap-3.5 border-y border-mist py-2.5">
-          {ev.duration && (
+          {ev.duration && tone !== "lodges" && (
             <span className="inline-flex items-center gap-1.5 font-body text-xs font-500 text-granite">
               <Clock className="h-3.5 w-3.5 text-polar-teal" />
               {ev.duration}

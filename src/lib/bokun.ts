@@ -47,6 +47,8 @@ export type BokunRaceDetail = {
   source: "bokun";
 };
 
+export type BokunRoutePoint = { lat: number; lng: number; title?: string };
+
 export type BokunMapPoint = {
   id: string;
   title: string;
@@ -61,6 +63,7 @@ export type BokunMapPoint = {
   locationName?: string;
   lat: number;
   lng: number;
+  route?: BokunRoutePoint[];
 };
 
 function getRequiredEnv(name: string): string {
@@ -337,7 +340,17 @@ export async function listBokunMapPoints(): Promise<BokunMapPoint[]> {
 
     // 1st priority: startPoints from detail endpoint
     const detail = detailMap.get(id);
-    const sp = Array.isArray(detail?.startPoints) ? detail!.startPoints![0] : undefined;
+    const allSps = Array.isArray(detail?.startPoints) ? detail!.startPoints! : [];
+    const routePoints = allSps.reduce<BokunRoutePoint[]>((acc, s) => {
+      const gp = s?.address?.geoPoint;
+      const rlat = typeof gp?.latitude === "number" ? gp.latitude : NaN;
+      const rlng = typeof gp?.longitude === "number" ? gp.longitude : NaN;
+      if (Number.isFinite(rlat) && Number.isFinite(rlng)) {
+        acc.push({ lat: rlat, lng: rlng, title: (s as { title?: string }).title ?? undefined });
+      }
+      return acc;
+    }, []);
+    const sp = allSps[0];
     const geoPoint = sp?.address?.geoPoint;
     const spLat = typeof geoPoint?.latitude === "number" ? geoPoint.latitude : NaN;
     const spLng = typeof geoPoint?.longitude === "number" ? geoPoint.longitude : NaN;
@@ -374,6 +387,7 @@ export async function listBokunMapPoints(): Promise<BokunMapPoint[]> {
         undefined,
       lat,
       lng,
+      route: routePoints.length >= 2 ? routePoints : undefined,
     });
   }
 

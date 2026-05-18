@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { ArrowRight, Home, Users } from "lucide-react";
+import { ArrowRight, Home } from "lucide-react";
 import type { BokunRaceCard } from "@/lib/bokun";
 
 export default function FeaturedTours() {
@@ -98,12 +98,6 @@ export default function FeaturedTours() {
 
                     {/* Badge + price floating on image */}
                     <div className="absolute top-4 left-4 right-4 flex items-start justify-between">
-                      {lodge.duration && (
-                        <span className="inline-flex items-center gap-1.5 rounded-lg bg-polar-teal/90 px-3 py-1.5 font-heading text-xs font-600 uppercase tracking-wider text-white backdrop-blur-sm">
-                          <Users aria-hidden="true" className="h-3 w-3" />
-                          {lodge.duration}
-                        </span>
-                      )}
                       {lodge.price && (
                         <span className="rounded-lg bg-white/90 px-3 py-1.5 font-heading text-xs font-700 text-arctic-navy backdrop-blur-sm">
                           {lodge.price.toLocaleString("da-DK")} DKK
