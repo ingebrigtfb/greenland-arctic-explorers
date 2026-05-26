@@ -55,6 +55,17 @@ function formatPrice(price?: number) {
   return `${price.toLocaleString("da-DK")} DKK`;
 }
 
+function parseGpx(xml: string): [number, number][] {
+  const doc = new DOMParser().parseFromString(xml, "text/xml");
+  const coords: [number, number][] = [];
+  doc.querySelectorAll("trkpt").forEach(pt => {
+    const lat = parseFloat(pt.getAttribute("lat") ?? "");
+    const lon = parseFloat(pt.getAttribute("lon") ?? "");
+    if (Number.isFinite(lat) && Number.isFinite(lon)) coords.push([lon, lat]);
+  });
+  return coords;
+}
+
 export default function TourMap() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -164,69 +175,102 @@ export default function TourMap() {
     return () => window.removeEventListener("keydown", onKey);
   }, [selected]);
 
-  // Draw/remove route line when a point with a route is selected
+  // Draw/remove route line when a point is selected — GPX takes priority over Bokun start points
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !map.isStyleLoaded()) return;
 
-    const cleanup = () => {
+    const removeRoute = () => {
       if (!mapRef.current) return;
       try {
         if (map.getLayer("route-line")) map.removeLayer("route-line");
         if (map.getLayer("route-start")) map.removeLayer("route-start");
-        if (map.getLayer("route-end")) map.removeLayer("route-end");
         if (map.getSource("route")) map.removeSource("route");
         if (map.getSource("route-points")) map.removeSource("route-points");
       } catch { /* map may have been removed */ }
     };
 
-    cleanup();
+    removeRoute();
 
-    if (!selected?.route || selected.route.length < 2) return;
+    if (!selected) return removeRoute;
 
-    const coords = selected.route.map(p => [p.lng, p.lat] as [number, number]);
+    let aborted = false;
 
-    map.addSource("route", {
-      type: "geojson",
-      data: { type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: coords } },
-    });
-    map.addLayer({
-      id: "route-line",
-      type: "line",
-      source: "route",
-      paint: { "line-color": "#FF6E40", "line-width": 3, "line-dasharray": [2, 1.5], "line-opacity": 0.9 },
-    });
+    const drawRoute = (coords: [number, number][], solid = false) => {
+      if (aborted || coords.length < 2) return;
+      const m = mapRef.current;
+      if (!m || !m.isStyleLoaded()) return;
+      try {
+        m.addSource("route", {
+          type: "geojson",
+          data: { type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: coords } },
+        });
+        m.addLayer({
+          id: "route-line",
+          type: "line",
+          source: "route",
+          paint: {
+            "line-color": "#FF6E40",
+            "line-width": 3,
+            "line-opacity": 0.9,
+            ...(solid ? {} : { "line-dasharray": [2, 1.5] }),
+          },
+        });
 
-    map.addSource("route-points", {
-      type: "geojson",
-      data: {
-        type: "FeatureCollection",
-        features: [
-          { type: "Feature", properties: { label: "S", color: "#22c55e" }, geometry: { type: "Point", coordinates: coords[0] } },
-          { type: "Feature", properties: { label: "F", color: "#FF6E40" }, geometry: { type: "Point", coordinates: coords[coords.length - 1] } },
-        ],
-      },
-    });
-    map.addLayer({
-      id: "route-start",
-      type: "circle",
-      source: "route-points",
-      paint: {
-        "circle-radius": 10,
-        "circle-color": ["get", "color"],
-        "circle-stroke-width": 2,
-        "circle-stroke-color": "#fff",
-      },
-    });
+        m.addSource("route-points", {
+          type: "geojson",
+          data: {
+            type: "FeatureCollection",
+            features: [
+              { type: "Feature", properties: { color: "#22c55e" }, geometry: { type: "Point", coordinates: coords[0] } },
+              { type: "Feature", properties: { color: "#FF6E40" }, geometry: { type: "Point", coordinates: coords[coords.length - 1] } },
+            ],
+          },
+        });
+        m.addLayer({
+          id: "route-start",
+          type: "circle",
+          source: "route-points",
+          paint: {
+            "circle-radius": 10,
+            "circle-color": ["get", "color"],
+            "circle-stroke-width": 2,
+            "circle-stroke-color": "#fff",
+          },
+        });
 
-    // Fit map to route
-    const bounds = coords.reduce(
-      (b, c) => b.extend(c as [number, number]),
-      new mapboxgl.LngLatBounds(coords[0], coords[0])
-    );
-    map.fitBounds(bounds, { padding: 80, maxZoom: 12, duration: 800 });
+        const bounds = coords.reduce(
+          (b, c) => b.extend(c),
+          new mapboxgl.LngLatBounds(coords[0], coords[0])
+        );
+        m.fitBounds(bounds, { padding: 80, maxZoom: 14, duration: 800 });
+      } catch { /* style race */ }
+    };
 
-    return cleanup;
+    (async () => {
+      // Try GPX file first (named by activity id)
+      try {
+        const res = await fetch(`/gpx/${selected.id}.gpx`);
+        if (!aborted && res.ok) {
+          const xml = await res.text();
+          const coords = parseGpx(xml);
+          if (coords.length >= 2) {
+            drawRoute(coords, true);
+            return;
+          }
+        }
+      } catch { /* no GPX */ }
+
+      // Fall back to Bokun start points
+      if (!aborted && selected.route && selected.route.length >= 2) {
+        drawRoute(selected.route.map(p => [p.lng, p.lat] as [number, number]));
+      }
+    })();
+
+    return () => {
+      aborted = true;
+      removeRoute();
+    };
   }, [selected]);
 
   const close = useCallback(() => setSelected(null), []);

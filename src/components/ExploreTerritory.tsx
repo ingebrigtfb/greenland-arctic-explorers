@@ -302,21 +302,6 @@ function TinderStack({ active, onAdvance, onOpen, onInteract }: {
       >
         <Image src={IMAGES[active].src} alt={IMAGES[active].alt} fill className="object-cover" sizes="100vw" />
 
-        {/* Swipe direction hints */}
-        {drag.dragging && (
-          <>
-            {drag.x > 20 && (
-              <div className="absolute inset-0 flex items-center justify-start p-6" style={{ opacity: Math.min(drag.x / 100, 1) }}>
-                <div className="rounded-xl border-4 border-polar-teal px-4 py-2 font-heading text-xl font-800 text-polar-teal rotate-[-20deg]">NEXT</div>
-              </div>
-            )}
-            {drag.x < -20 && (
-              <div className="absolute inset-0 flex items-center justify-end p-6" style={{ opacity: Math.min(-drag.x / 100, 1) }}>
-                <div className="rounded-xl border-4 border-arctic-orange px-4 py-2 font-heading text-xl font-800 text-arctic-orange rotate-[20deg]">BACK</div>
-              </div>
-            )}
-          </>
-        )}
       </div>
 
     </div>

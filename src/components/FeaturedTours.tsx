@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { ArrowRight, Home } from "lucide-react";
 import type { BokunRaceCard } from "@/lib/bokun";
 
@@ -69,9 +70,10 @@ export default function FeaturedTours() {
                 />
               ))
             : lodges.map((lodge, i) => (
-                <article
+                <Link
                   key={lodge.id}
-                  className={`group overflow-hidden rounded-xl bg-white shadow-[0_1px_3px_rgba(0,0,0,0.06),0_6px_20px_rgba(0,0,0,0.06)] transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] ${
+                  href={`/arctic-lodges/${lodge.slug ?? lodge.id}`}
+                  className={`group overflow-hidden rounded-xl bg-white shadow-[0_1px_3px_rgba(0,0,0,0.06),0_6px_20px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_2px_6px_rgba(13,27,42,0.08),0_24px_56px_rgba(13,27,42,0.14)] ${
                     visible
                       ? "translate-y-0 opacity-100"
                       : "translate-y-8 opacity-0"
@@ -128,15 +130,12 @@ export default function FeaturedTours() {
                         {lodge.shortDescription}
                       </p>
                     )}
-                    <a
-                      href={`/arctic-lodges/${lodge.slug ?? lodge.id}`}
-                      className="inline-flex items-center gap-1.5 font-heading text-[13px] font-600 text-glacier transition-colors hover:text-polar-teal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glacier rounded"
-                    >
+                    <span className="inline-flex items-center gap-1.5 font-heading text-[13px] font-600 text-glacier transition-colors group-hover:text-polar-teal">
                       View Details
                       <ArrowRight aria-hidden="true" className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-                    </a>
+                    </span>
                   </div>
-                </article>
+                </Link>
               ))}
         </div>
       </div>

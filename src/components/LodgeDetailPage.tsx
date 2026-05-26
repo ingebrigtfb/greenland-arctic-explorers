@@ -296,8 +296,8 @@ export default function LodgeDetailPage() {
 function PhotoGrid({ photos, title, onOpen }: { photos: GalleryImage[]; title: string; onOpen: (i: number) => void }) {
   if (photos.length === 1) {
     return (
-      <button onClick={() => onOpen(0)} className="group relative block w-full overflow-hidden rounded-2xl">
-        <div className="relative aspect-[16/7] w-full">
+      <button onClick={() => onOpen(0)} className="relative block w-full overflow-hidden rounded-2xl">
+        <div className="relative aspect-[4/3] w-full sm:aspect-[16/7]">
           <Image src={photos[0].url} alt={title} fill className="object-cover" />
         </div>
       </button>
@@ -305,32 +305,65 @@ function PhotoGrid({ photos, title, onOpen }: { photos: GalleryImage[]; title: s
   }
 
   return (
-    <div className="relative overflow-hidden rounded-2xl">
-      <div className="grid h-[480px] grid-cols-2 gap-2">
-        <button onClick={() => onOpen(0)} className="group relative overflow-hidden">
-          <Image src={photos[0].url} alt={title} fill className="object-cover" />
+    <>
+      {/* Mobile: stacked hero + thumbnail strip */}
+      <div className="sm:hidden">
+        <button onClick={() => onOpen(0)} className="relative block w-full overflow-hidden rounded-xl">
+          <div className="relative aspect-[4/3] w-full">
+            <Image src={photos[0].url} alt={title} fill className="object-cover" sizes="100vw" />
+          </div>
         </button>
-        <div className="grid grid-rows-2 gap-2">
-          {[1, 2, 3, 4].map(i => (
-            photos[i] ? (
-              <button key={i} onClick={() => onOpen(i)} className="group relative overflow-hidden">
-                <Image src={photos[i].url} alt={`${title} ${i + 1}`} fill className="object-cover" sizes="25vw" />
+        {photos.length > 1 && (
+          <div className="mt-2 flex gap-2 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            {photos.slice(1).map((photo, i) => (
+              <button
+                key={i + 1}
+                onClick={() => onOpen(i + 1)}
+                className="relative h-[72px] w-[72px] flex-shrink-0 overflow-hidden rounded-lg"
+              >
+                <Image src={photo.url} alt={`${title} ${i + 2}`} fill className="object-cover" sizes="72px" />
               </button>
-            ) : (
-              <div key={i} className="bg-mist" />
-            )
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
+        {photos.length >= 3 && (
+          <button
+            onClick={() => onOpen(0)}
+            className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-xl border border-mist bg-frost-light px-4 py-2.5 font-heading text-xs font-600 text-arctic-navy"
+          >
+            Show all {photos.length} photos
+          </button>
+        )}
       </div>
-      {photos.length >= 3 && (
-        <button
-          onClick={() => onOpen(0)}
-          className="absolute bottom-4 right-4 flex items-center gap-2 rounded-xl border border-mist bg-white/95 px-4 py-2 font-heading text-xs font-600 text-arctic-navy shadow-sm backdrop-blur-sm hover:bg-white"
-        >
-          Show all {photos.length} photos
-        </button>
-      )}
-    </div>
+
+      {/* Desktop: Airbnb-style grid */}
+      <div className="relative hidden overflow-hidden rounded-2xl sm:block">
+        <div className="grid h-[480px] grid-cols-2 gap-2">
+          <button onClick={() => onOpen(0)} className="group relative overflow-hidden">
+            <Image src={photos[0].url} alt={title} fill className="object-cover" sizes="50vw" />
+          </button>
+          <div className="grid grid-rows-2 gap-2">
+            {[1, 2, 3, 4].map(i => (
+              photos[i] ? (
+                <button key={i} onClick={() => onOpen(i)} className="group relative overflow-hidden">
+                  <Image src={photos[i].url} alt={`${title} ${i + 1}`} fill className="object-cover" sizes="25vw" />
+                </button>
+              ) : (
+                <div key={i} className="bg-mist" />
+              )
+            ))}
+          </div>
+        </div>
+        {photos.length >= 3 && (
+          <button
+            onClick={() => onOpen(0)}
+            className="absolute bottom-4 right-4 flex items-center gap-2 rounded-xl border border-mist bg-white/95 px-4 py-2 font-heading text-xs font-600 text-arctic-navy shadow-sm backdrop-blur-sm hover:bg-white"
+          >
+            Show all {photos.length} photos
+          </button>
+        )}
+      </div>
+    </>
   );
 }
 

@@ -214,7 +214,7 @@ export default function Header() {
           <Link
             href="/contact-us"
             onClick={() => setMenuOpen(false)}
-            className="block w-full rounded-xl bg-glacier py-3.5 text-center font-heading text-sm font-600 tracking-wider text-white transition-all hover:bg-polar-teal active:scale-[0.98]"
+            className="block w-full rounded-xl bg-arctic-orange py-3.5 text-center font-heading text-sm font-600 tracking-wider text-white transition-all hover:bg-[#E55A30] active:scale-[0.98]"
           >
             Get in Touch
           </Link>
