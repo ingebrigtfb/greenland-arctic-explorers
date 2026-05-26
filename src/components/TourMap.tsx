@@ -366,12 +366,12 @@ export default function TourMap() {
           selected ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        {/* Arrow tab — only rendered when panel is open so it slides away with the panel */}
+        {/* Arrow tab — desktop only (panel is not full-width there) */}
         {selected && (
           <button
             onClick={close}
             aria-label="Close panel"
-            className="absolute -left-10 top-24 flex h-10 w-10 items-center justify-center rounded-l-xl bg-white text-arctic-navy shadow-[-4px_0_12px_rgba(0,0,0,0.12)] transition-colors hover:bg-frost-light"
+            className="absolute -left-10 top-24 hidden sm:flex h-10 w-10 items-center justify-center rounded-l-xl bg-white text-arctic-navy shadow-[-4px_0_12px_rgba(0,0,0,0.12)] transition-colors hover:bg-frost-light"
           >
             <ChevronRight className="h-5 w-5" />
           </button>
@@ -394,6 +394,15 @@ export default function TourMap() {
                 </div>
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-arctic-navy/70 via-arctic-navy/10 to-transparent" />
+
+              {/* Mobile close button */}
+              <button
+                onClick={close}
+                aria-label="Close panel"
+                className="absolute left-4 top-4 z-10 flex sm:hidden h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm transition-colors hover:bg-black/60"
+              >
+                <ChevronRight className="h-5 w-5 rotate-180" />
+              </button>
 
               {selected.price && (
                 <div className="absolute top-4 right-4">
