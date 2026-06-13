@@ -243,7 +243,8 @@ export default function ContentDetailPage({
         <div className="absolute inset-0 bg-gradient-to-t from-arctic-navy via-arctic-navy/50 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-arctic-navy/70 via-transparent to-transparent" />
 
-        <div className="absolute top-0 left-0 right-0 z-20 pt-28 lg:pt-32">
+        {/* Back button — pinned just below the fixed header */}
+        <div className="absolute left-0 right-0 z-20 top-[80px] lg:top-[88px]">
           <div className="mx-auto max-w-[1280px] px-6 lg:px-12">
             <Link
               href={backHref}
@@ -258,19 +259,19 @@ export default function ContentDetailPage({
         <div className="relative z-10 flex h-full items-end">
           <div className="w-full pb-20 lg:pb-28">
             <div className="mx-auto max-w-[1280px] px-6 lg:px-12">
-              <div className="max-w-3xl">
+              <div>
                 {item.date && (
                   <p className="mb-4 animate-fade-in font-heading text-sm font-600 uppercase tracking-[0.2em] text-arctic-orange">
                     {formatDate(item.date)}
                   </p>
                 )}
 
-                <h1 className="mb-6 animate-fade-in-up font-display text-[clamp(2.8rem,7vw,6rem)] font-800 leading-[0.95] tracking-tight text-white">
+                <h1 className="mb-6 animate-fade-in-up font-display text-[clamp(2.5rem,6.5vw,6rem)] font-800 leading-[0.92] tracking-tight text-white">
                   {item.title}
                 </h1>
 
                 {item.shortDescription && (
-                  <p className="mb-10 max-w-xl animate-fade-in-up font-body text-lg leading-relaxed text-frost/90 [animation-delay:200ms]">
+                  <p className="mb-10 max-w-2xl animate-fade-in-up font-body text-lg leading-relaxed text-frost/90 [animation-delay:200ms]">
                     {item.shortDescription}
                   </p>
                 )}
