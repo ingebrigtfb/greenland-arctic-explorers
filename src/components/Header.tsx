@@ -9,7 +9,7 @@ const navLinks = [
   { label: "Tours", href: "/tours" },
   { label: "Races", href: "/races" },
   { label: "Arctic Lodges", href: "/arctic-lodges" },
-  { label: "Adventures", href: "/activities" },
+  { label: "Adventures", href: "/adventures" },
   { label: "Tour Map", href: "/tour-map" },
   { label: "About Us", href: "/about-us" },
   { label: "Contact Us", href: "/contact-us" },
@@ -19,7 +19,7 @@ export default function Header() {
   const pathname = usePathname();
   const isHeroPage =
     pathname === "/" ||
-    ["/tours", "/races", "/activities"].some(r => pathname === r || pathname.startsWith(r + "/")) ||
+    ["/tours", "/races", "/adventures"].some(r => pathname === r || pathname.startsWith(r + "/")) ||
     pathname === "/arctic-lodges";
   const [scrolled, setScrolled] = useState(!isHeroPage);
   const [menuOpen, setMenuOpen] = useState(false);

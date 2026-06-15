@@ -145,7 +145,7 @@ export async function listBokunTours(): Promise<BokunRaceCard[]> {
 }
 
 export async function listBokunActivities(): Promise<BokunRaceCard[]> {
-  return listBokunByProductCode("activities", "activities");
+  return listBokunByProductCode("adventures", "adventures");
 }
 
 export async function listBokunLodges(): Promise<BokunRaceCard[]> {
@@ -254,10 +254,10 @@ function hrefForExternalId(externalId?: string | null, slug?: string) {
   const s = slug ?? "";
   if (code.includes("tour")) return `/tours/${s}`;
   if (code.includes("race")) return `/races/${s}`;
-  if (code.includes("activities") || code.includes("activity")) return `/activities/${s}`;
+  if (code.includes("adventures") || code.includes("adventure") || code.includes("activities") || code.includes("activity")) return `/adventures/${s}`;
   if (code.includes("lodge") || code.includes("cabin")) return `/arctic-lodges/${s}`;
-  // Fallback: treat as an activity
-  return `/activities/${s}`;
+  // Fallback: treat as an adventure
+  return `/adventures/${s}`;
 }
 
 export async function listBokunMapPoints(): Promise<BokunMapPoint[]> {

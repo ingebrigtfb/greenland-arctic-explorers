@@ -27,8 +27,8 @@ export default function ActivitiesPage() {
           tag: "Browse · All experiences",
           title: "Pick your Arctic moment",
         }}
-        fetchUrl="/api/bokun/activities"
-        linkBase="/activities"
+        fetchUrl="/api/bokun/adventures"
+        linkBase="/adventures"
         emptyTitle="No upcoming adventures"
         emptyDescription="Check back soon for new adventure dates."
       />

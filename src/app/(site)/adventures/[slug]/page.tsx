@@ -8,7 +8,7 @@ export default function ActivityDetailPage() {
       collection="activities"
       label="Adventure"
       labelPlural="Adventures"
-      backHref="/activities"
+      backHref="/adventures"
     />
   );
 }

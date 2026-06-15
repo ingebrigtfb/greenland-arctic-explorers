@@ -29,14 +29,14 @@ type MapPoint = {
 function dotColor(href: string): string {
   if (href.includes("/races/")) return "#FF6E40";       // arctic-orange
   if (href.includes("/tours/")) return "#2E8BA7";       // polar-teal
-  if (href.includes("/activities/")) return "#5FA8D3";  // ice-blue
+  if (href.includes("/adventures/")) return "#5FA8D3";  // ice-blue
   return "#1B4965";                                     // glacier (lodges / fallback)
 }
 
 function dotColorHover(href: string): string {
   if (href.includes("/races/")) return "rgba(255,110,64,0.35)";
   if (href.includes("/tours/")) return "rgba(46,139,167,0.35)";
-  if (href.includes("/activities/")) return "rgba(95,168,211,0.35)";
+  if (href.includes("/adventures/")) return "rgba(95,168,211,0.35)";
   return "rgba(27,73,101,0.35)";
 }
 
