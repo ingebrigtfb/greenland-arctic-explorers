@@ -3,7 +3,7 @@ const quickLinks = [
   { label: "Tours", href: "/tours" },
   { label: "Races", href: "/races" },
   { label: "Arctic Lodges", href: "/arctic-lodges" },
-  { label: "Activities", href: "/activities" },
+  { label: "Adventures", href: "/activities" },
   { label: "Tour Map", href: "/tour-map" },
   { label: "About Us", href: "/about-us" },
   { label: "Contact Us", href: "/contact-us" },

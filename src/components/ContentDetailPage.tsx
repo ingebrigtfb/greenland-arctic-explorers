@@ -7,9 +7,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { getItemBySlug } from "@/lib/content";
 import type { CollectionName } from "@/lib/content";
-import { MapPin, Clock, ArrowLeft, ArrowRight, Play, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { MapPin, Clock, ArrowLeft, ArrowRight, Play, ChevronLeft, ChevronRight, X, FileText } from "lucide-react";
 
 const BOKUN_CHANNEL_UUID = "159bdf9f-bfe0-451a-8901-42c0293704e6";
+
+const ACTIVITY_PDFS: Record<string, { label: string; url: string }[]> = {
+  "1198329": [
+    { label: "Race Information (EN)", url: "/info-nuukap/Nuukkap+GAX+Info+Engelsk.pdf" },
+    { label: "Race Information (DK/GL)", url: "/info-nuukap/Nuukkap+GAX+info+Dansk-Grønlandsk.pdf" },
+  ],
+};
 
 type GalleryImage = {
   url: string;
@@ -25,6 +32,7 @@ type ItemDetail = {
   date?: string;
   shortDescription?: string;
   longDescription?: string;
+  knowBeforeYouGo?: string;
   price?: string | number;
   duration?: string;
   location?: string;
@@ -102,6 +110,7 @@ export default function ContentDetailPage({
   const [loading, setLoading] = useState(true);
   const [bokunId, setBokunId] = useState<string | null>(null);
   const [bookingOpen, setBookingOpen] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
 
   const parallaxRef = useParallax();
 
@@ -143,9 +152,9 @@ export default function ContentDetailPage({
   }, [bokunId, item, reloadBokunWidgets]);
 
   useEffect(() => {
-    document.body.style.overflow = bookingOpen ? "hidden" : "";
+    document.body.style.overflow = (bookingOpen || infoOpen) ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
-  }, [bookingOpen]);
+  }, [bookingOpen, infoOpen]);
 
   useEffect(() => {
     if (bookingOpen) {
@@ -295,6 +304,15 @@ export default function ContentDetailPage({
                     </a>
                   )}
 
+                  {item.knowBeforeYouGo && (
+                    <button
+                      onClick={() => setInfoOpen(true)}
+                      className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-8 py-3.5 font-heading text-sm font-600 tracking-wider text-white backdrop-blur-sm transition-all hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                    >
+                      Race Information
+                    </button>
+                  )}
+
                   {item.price && (
                     <span className="font-heading text-2xl font-800 text-white">
                       {formatPrice(item.price)}
@@ -390,6 +408,34 @@ export default function ContentDetailPage({
         </section>
       )}
 
+      {/* ───── PDF DOWNLOADS ───── */}
+      {bokunId && ACTIVITY_PDFS[bokunId] && (
+        <section className="bg-frost-light py-12 lg:py-16">
+          <div className="mx-auto max-w-[1280px] px-6 lg:px-12">
+            <div className="mb-6">
+              <div className="h-px w-12 bg-arctic-orange" />
+              <p className="mt-4 font-heading text-xs font-600 uppercase tracking-[0.2em] text-granite">
+                Documents
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-4">
+              {ACTIVITY_PDFS[bokunId].map((pdf) => (
+                <a
+                  key={pdf.url}
+                  href={pdf.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-3 rounded-xl border border-mist bg-white px-5 py-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+                >
+                  <FileText className="h-5 w-5 flex-shrink-0 text-arctic-orange" />
+                  <span className="font-heading text-sm font-600 text-arctic-navy">{pdf.label}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ───── BOOKING MODAL ───── */}
       {bokunId && (
         <>
@@ -457,6 +503,45 @@ export default function ContentDetailPage({
             }
           `}</style>
         </>
+      )}
+
+      {/* ───── RACE INFORMATION MODAL ───── */}
+      {item.knowBeforeYouGo && (
+        <div
+          className={`fixed inset-0 z-[300] flex items-center justify-center transition-all duration-300 ${
+            infoOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+          }`}
+        >
+          <div
+            className="absolute inset-0 bg-arctic-navy/80 backdrop-blur-sm"
+            onClick={() => setInfoOpen(false)}
+          />
+          <div
+            className={`relative z-10 mx-4 w-full max-w-2xl transition-all duration-300 ${
+              infoOpen ? "translate-y-0 scale-100" : "translate-y-4 scale-95"
+            }`}
+          >
+            <div className="flex items-center justify-between rounded-t-2xl border-b border-mist bg-white px-6 py-5">
+              <div>
+                <h2 className="font-display text-lg font-700 text-arctic-navy">Race Information</h2>
+                <p className="mt-0.5 font-body text-xs text-granite">Know before you go</p>
+              </div>
+              <button
+                onClick={() => setInfoOpen(false)}
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-mist text-granite transition-colors hover:bg-frost-light hover:text-arctic-navy"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="max-h-[65vh] overflow-y-auto rounded-b-2xl bg-white px-6 py-6">
+              <div
+                className="rich-content font-body text-[15px] leading-relaxed text-stone"
+                dangerouslySetInnerHTML={{ __html: item.knowBeforeYouGo }}
+              />
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

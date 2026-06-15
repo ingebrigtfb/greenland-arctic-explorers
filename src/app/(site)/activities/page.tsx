@@ -3,8 +3,8 @@ import BokunEventCards from "@/components/BokunEventCards";
 import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
-  title: "Activities — Greenland Arctic Xplorers",
-  description: "Explore Arctic activities from glacier hiking to Northern Lights chasing.",
+  title: "Adventures — Greenland Arctic Xplorers",
+  description: "Explore Arctic adventures from glacier hiking to Northern Lights chasing.",
 };
 
 export default function ActivitiesPage() {
@@ -13,10 +13,10 @@ export default function ActivitiesPage() {
       <PageHero
         image="/races1.JPEG"
         alt="Kayak and boat beside an iceberg in a Greenland fjord"
-        breadcrumb="Activities"
+        breadcrumb="Adventures"
         eyebrow="Things To Do"
-        title="Activities"
-        lede="From dog sledding and glacier hikes to kayaking and Northern Lights excursions — find the perfect Arctic activity for your adventure."
+        title="Adventures"
+        lede="From glacier hikes to kayaking and Northern Lights excursions — find the perfect Arctic adventure for your trip."
         focal="62% center"
       />
 
@@ -29,8 +29,8 @@ export default function ActivitiesPage() {
         }}
         fetchUrl="/api/bokun/activities"
         linkBase="/activities"
-        emptyTitle="No upcoming activities"
-        emptyDescription="Check back soon for new activity dates."
+        emptyTitle="No upcoming adventures"
+        emptyDescription="Check back soon for new adventure dates."
       />
     </section>
   );

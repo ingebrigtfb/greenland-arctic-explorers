@@ -36,6 +36,7 @@ export type BokunRaceDetail = {
   title: string;
   shortDescription?: string;
   longDescription?: string;
+  knowBeforeYouGo?: string;
   featuredImage?: BokunImage;
   gallery?: BokunImage[];
   price?: number;
@@ -420,11 +421,14 @@ export async function getBokunRaceDetail(id: string): Promise<BokunRaceDetail> {
 
   type BokunLocationCode = { location?: string | null } | null | undefined;
   type BokunVideo = { url?: string | null; sourceUrl?: string | null; videoUrl?: string | null; youtubeUrl?: string | null };
+  type BokunKeyValue = { label?: string | null; value?: string | null };
   type BokunActivityDetail = {
     id?: string | number | null;
     title?: string | null;
     excerpt?: string | null;
     description?: string | null;
+    publicNotes?: string | null;
+    keyValues?: BokunKeyValue[] | null;
     keyPhoto?: unknown;
     photos?: unknown[];
     price?: number | string | null;
@@ -457,12 +461,29 @@ export async function getBokunRaceDetail(id: string): Promise<BokunRaceDetail> {
     return undefined;
   }
 
+  function resolveKnowBeforeYouGo(): string | undefined {
+    // Prefer structured keyValues (Bokun "Know before you go" key-value pairs)
+    if (Array.isArray(item.keyValues) && item.keyValues.length > 0) {
+      const html = item.keyValues
+        .filter(kv => kv.label || kv.value)
+        .map(kv => kv.label && kv.value
+          ? `<p><strong>${kv.label}</strong><br/>${kv.value}</p>`
+          : `<p>${kv.label ?? kv.value ?? ""}</p>`)
+        .join("");
+      if (html) return html;
+    }
+    // Fall back to publicNotes plain text
+    if (item.publicNotes) return String(item.publicNotes);
+    return undefined;
+  }
+
   return {
     id: String(item.id ?? id),
     slug: `${slugify(String(item.title ?? "untitled"))}-${id}`,
     title: String(item.title ?? "Untitled"),
     shortDescription: item.excerpt ? String(item.excerpt) : undefined,
     longDescription: item.description ? String(item.description) : undefined,
+    knowBeforeYouGo: resolveKnowBeforeYouGo(),
     featuredImage: mapBokunPhoto(item.keyPhoto),
     gallery: galleryPhotos,
     price: typeof item.price === "number" ? item.price : Number(item.price),

@@ -6,8 +6,8 @@ export default function ActivityDetailPage() {
   return (
     <ContentDetailPage
       collection="activities"
-      label="Activity"
-      labelPlural="Activities"
+      label="Adventure"
+      labelPlural="Adventures"
       backHref="/activities"
     />
   );
