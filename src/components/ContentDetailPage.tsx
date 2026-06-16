@@ -353,18 +353,11 @@ export default function ContentDetailPage({
           <div className="mx-auto max-w-[1280px] px-6 lg:px-12">
             <div className="grid grid-cols-1 gap-16 lg:grid-cols-12">
               {item.longDescription && (
-                <div className={(item.videoUrl || (item.gallery && item.gallery.length > 0)) ? "lg:col-span-7" : "lg:col-span-8 lg:col-start-3"}>
-                  <div className="mb-8">
-                    <div className="h-px w-12 bg-arctic-orange" />
-                    <p className="mt-4 font-heading text-xs font-600 uppercase tracking-[0.2em] text-granite">
-                      About This {label}
-                    </p>
-                  </div>
-                  <div
-                    className="rich-content font-body text-stone"
-                    dangerouslySetInnerHTML={{ __html: item.longDescription }}
-                  />
-                </div>
+                <ExpandableDescription
+                  html={item.longDescription}
+                  label={label}
+                  wide={!(item.videoUrl || (item.gallery && item.gallery.length > 0))}
+                />
               )}
 
               {(item.videoUrl || (item.gallery && item.gallery.length > 0)) && (
@@ -544,6 +537,50 @@ export default function ContentDetailPage({
         </div>
       )}
     </>
+  );
+}
+
+const CLAMP_HEIGHT = 420;
+
+function ExpandableDescription({ html, label, wide }: { html: string; label: string; wide: boolean }) {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [overflows, setOverflows] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    const el = contentRef.current;
+    if (el) setOverflows(el.scrollHeight > CLAMP_HEIGHT + 10);
+  }, [html]);
+
+  return (
+    <div className={wide ? "lg:col-span-8 lg:col-start-3" : "lg:col-span-7"}>
+      <div className="mb-8">
+        <div className="h-px w-12 bg-arctic-orange" />
+        <p className="mt-4 font-heading text-xs font-600 uppercase tracking-[0.2em] text-granite">
+          About This {label}
+        </p>
+      </div>
+      <div className="relative">
+        <div
+          ref={contentRef}
+          className="rich-content font-body text-stone overflow-hidden transition-all duration-500"
+          style={{ maxHeight: expanded ? contentRef.current?.scrollHeight : overflows ? CLAMP_HEIGHT : undefined }}
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+        {overflows && !expanded && (
+          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white to-transparent" />
+        )}
+      </div>
+      {overflows && (
+        <button
+          onClick={() => setExpanded(e => !e)}
+          className="mt-4 inline-flex items-center gap-1.5 font-heading text-sm font-600 text-glacier transition-colors hover:text-polar-teal"
+        >
+          {expanded ? "Show less" : "Load more"}
+          <ChevronRight className={`h-4 w-4 transition-transform duration-300 ${expanded ? "-rotate-90" : "rotate-90"}`} />
+        </button>
+      )}
+    </div>
   );
 }
 

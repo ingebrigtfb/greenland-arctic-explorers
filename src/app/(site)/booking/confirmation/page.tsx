@@ -151,26 +151,6 @@ function ConfirmationContent() {
             </div>
           </div>
 
-          {/* What's next */}
-          <div className="border-t border-mist bg-frost-light/50 px-8 py-8 lg:px-10">
-            <h3 className="mb-4 font-heading text-sm font-600 uppercase tracking-[0.1em] text-granite">
-              What&apos;s Next
-            </h3>
-            <ul className="space-y-3 font-body text-sm text-stone">
-              <li className="flex items-start gap-2">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-polar-teal/15 text-[10px] font-700 text-polar-teal">1</span>
-                Check your email for the detailed confirmation and packing list.
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-polar-teal/15 text-[10px] font-700 text-polar-teal">2</span>
-                Our team will reach out with meeting point details closer to your date.
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-polar-teal/15 text-[10px] font-700 text-polar-teal">3</span>
-                Get ready for an unforgettable Arctic adventure!
-              </li>
-            </ul>
-          </div>
         </div>
 
         {/* Actions */}
