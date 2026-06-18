@@ -3,8 +3,16 @@ import BokunEventCards from "@/components/BokunEventCards";
 import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
-  title: "Adventures — Greenland Arctic Xplorers",
+  title: "Adventures",
   description: "Explore Arctic adventures from glacier hiking to Northern Lights chasing.",
+  alternates: {
+    canonical: "/adventures",
+  },
+  openGraph: {
+    title: "Adventures — Greenland Arctic Xplorers",
+    description: "Explore Arctic adventures from glacier hiking to Northern Lights chasing.",
+    url: "/adventures",
+  },
 };
 
 export default function ActivitiesPage() {

@@ -3,8 +3,16 @@ import BokunEventCards from "@/components/BokunEventCards";
 import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
-  title: "Tours — Greenland Arctic Xplorers",
+  title: "Tours",
   description: "Explore our signature Arctic expedition tours across Greenland.",
+  alternates: {
+    canonical: "/tours",
+  },
+  openGraph: {
+    title: "Tours — Greenland Arctic Xplorers",
+    description: "Explore our signature Arctic expedition tours across Greenland.",
+    url: "/tours",
+  },
 };
 
 export default function ToursPage() {

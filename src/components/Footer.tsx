@@ -31,7 +31,7 @@ export default function Footer() {
             <p className="max-w-xs font-body text-sm leading-relaxed">
               Premium expedition tours through Greenland&apos;s pristine Arctic
               wilderness. Small groups, expert guides, unforgettable
-              experiences since 2022.
+              experiences.
             </p>
           </div>
 
@@ -96,7 +96,9 @@ export default function Footer() {
           <div className="flex items-center gap-5">
             {/* Social icons */}
             <a
-              href="#"
+              href="https://www.facebook.com/greenlandarcticxplorers"
+              target="_blank"
+              rel="noopener noreferrer"
               aria-label="Facebook"
               className="text-mist/80 transition-colors hover:text-ice-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glacier rounded"
             >
@@ -105,7 +107,9 @@ export default function Footer() {
               </svg>
             </a>
             <a
-              href="#"
+              href="https://www.instagram.com/greenlandarcticxplorers"
+              target="_blank"
+              rel="noopener noreferrer"
               aria-label="Instagram"
               className="text-mist/80 transition-colors hover:text-ice-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glacier rounded"
             >
@@ -114,12 +118,25 @@ export default function Footer() {
               </svg>
             </a>
             <a
-              href="#"
+              href="https://www.youtube.com/@nuukkapextremerunningrace110"
+              target="_blank"
+              rel="noopener noreferrer"
               aria-label="YouTube"
               className="text-mist/80 transition-colors hover:text-ice-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glacier rounded"
             >
               <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+              </svg>
+            </a>
+            <a
+              href="https://www.tripadvisor.com/Profile/Roam10565999676"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="TripAdvisor"
+              className="text-mist/80 transition-colors hover:text-ice-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glacier rounded"
+            >
+              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 5.43c-2.243-1.628-4.835-2.43-7.5-2.43C2.96 3 1.395 3.314 0 3.94c.917.49 1.71 1.18 2.327 2.025A6.527 6.527 0 000 10.5C0 14.142 2.91 17.07 6.5 17.07c1.99 0 3.776-.89 4.997-2.293L12 16l.503-1.222a6.487 6.487 0 004.997 2.293c3.59 0 6.5-2.928 6.5-6.57a6.527 6.527 0 00-2.327-4.535A6.93 6.93 0 0024 3.94 11.93 11.93 0 0019.5 3c-2.665 0-5.257.802-7.5 2.43zM6.5 14.93a4.43 4.43 0 110-8.86 4.43 4.43 0 010 8.86zm11 0a4.43 4.43 0 110-8.86 4.43 4.43 0 010 8.86zM6.5 8.214a2.286 2.286 0 100 4.572 2.286 2.286 0 000-4.572zm11 0a2.286 2.286 0 100 4.572 2.286 2.286 0 000-4.572z" />
               </svg>
             </a>
           </div>

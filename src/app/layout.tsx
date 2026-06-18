@@ -24,10 +24,84 @@ const inter = Inter({
   display: "swap",
 });
 
+const SITE_URL = "https://www.greenlandarcticxplorers.com";
+const SITE_NAME = "Greenland Arctic Xplorers";
+const SITE_DESCRIPTION =
+  "Experience the pristine Arctic wilderness of Greenland. Glacier expeditions, Northern Lights chases, fjord kayaking, and unforgettable adventures in the world's last frontier.";
+
 export const metadata: Metadata = {
-  title: "Greenland Arctic Xplorers — Expedition Tours & Adventures",
-  description:
-    "Experience the pristine Arctic wilderness of Greenland. Glacier expeditions, Northern Lights chases, fjord kayaking, and unforgettable adventures in the world's last frontier.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${SITE_NAME} — Expedition Tours & Adventures`,
+    template: `%s — ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  keywords: [
+    "Greenland tours",
+    "Arctic expeditions",
+    "Greenland adventures",
+    "Northern Lights Greenland",
+    "Greenland races",
+    "Arctic lodges",
+    "Nuuk tours",
+  ],
+  authors: [{ name: SITE_NAME }],
+  alternates: {
+    canonical: "/",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} — Expedition Tours & Adventures`,
+    description: SITE_DESCRIPTION,
+    images: [
+      {
+        url: "/hero1.JPEG",
+        width: 1200,
+        height: 630,
+        alt: SITE_NAME,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${SITE_NAME} — Expedition Tours & Adventures`,
+    description: SITE_DESCRIPTION,
+    images: ["/hero1.JPEG"],
+  },
+  icons: {
+    icon: "/gax-logo.png",
+    apple: "/gax-logo.png",
+  },
+};
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "TravelAgency",
+  name: SITE_NAME,
+  url: SITE_URL,
+  logo: `${SITE_URL}/gax-logo.png`,
+  email: "info@gax.gl",
+  sameAs: [
+    "https://www.facebook.com/greenlandarcticxplorers",
+    "https://www.instagram.com/greenlandarcticxplorers",
+    "https://www.youtube.com/@nuukkapextremerunningrace110",
+    "https://www.tripadvisor.com/Profile/Roam10565999676",
+  ],
+  areaServed: {
+    "@type": "Country",
+    name: "Greenland",
+  },
 };
 
 export default function RootLayout({
@@ -38,6 +112,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${montserrat.variable} ${sora.variable} ${inter.variable} antialiased`}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
         <Providers>{children}</Providers>
       </body>
     </html>

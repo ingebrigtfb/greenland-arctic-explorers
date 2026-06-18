@@ -3,8 +3,16 @@ import BokunEventCards from "@/components/BokunEventCards";
 import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
-  title: "Arctic Lodges — Greenland Arctic Xplorers",
+  title: "Arctic Lodges",
   description: "Stay in our remote Arctic lodges surrounded by pristine wilderness.",
+  alternates: {
+    canonical: "/arctic-lodges",
+  },
+  openGraph: {
+    title: "Arctic Lodges — Greenland Arctic Xplorers",
+    description: "Stay in our remote Arctic lodges surrounded by pristine wilderness.",
+    url: "/arctic-lodges",
+  },
 };
 
 export default function ArcticLodgesPage() {
