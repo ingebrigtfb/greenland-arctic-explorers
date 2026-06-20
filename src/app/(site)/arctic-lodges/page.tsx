@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import BokunEventCards from "@/components/BokunEventCards";
 import PageHero from "@/components/PageHero";
+import { buildOpenGraph } from "@/lib/site-metadata";
 
 export const metadata: Metadata = {
   title: "Arctic Lodges",
@@ -8,11 +9,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/arctic-lodges",
   },
-  openGraph: {
+  openGraph: buildOpenGraph({
     title: "Arctic Lodges — Greenland Arctic Xplorers",
     description: "Stay in our remote Arctic lodges surrounded by pristine wilderness.",
     url: "/arctic-lodges",
-  },
+  }),
 };
 
 export default function ArcticLodgesPage() {

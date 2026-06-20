@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import AboutContent from "@/components/AboutContent";
+import { buildOpenGraph } from "@/lib/site-metadata";
 
 export const metadata: Metadata = {
   title: "About Us",
@@ -7,11 +8,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/about-us",
   },
-  openGraph: {
+  openGraph: buildOpenGraph({
     title: "About Us — Greenland Arctic Xplorers",
     description: "Learn about Greenland Arctic Xplorers — our story, mission, and team.",
     url: "/about-us",
-  },
+  }),
 };
 
 export default function AboutUsPage() {

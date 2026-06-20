@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import LodgeDetailPage from "@/components/LodgeDetailPage";
 import { getDetailMeta } from "@/lib/seo";
+import { buildOpenGraph } from "@/lib/site-metadata";
 
 type Params = { slug: string };
 
@@ -22,12 +23,12 @@ export async function generateMetadata({
     alternates: {
       canonical: `/arctic-lodges/${slug}`,
     },
-    openGraph: {
+    openGraph: buildOpenGraph({
       title: `${meta.title} — Greenland Arctic Xplorers`,
-      description: meta.description,
+      description: meta.description ?? "",
       url: `/arctic-lodges/${slug}`,
-      images: meta.imageUrl ? [{ url: meta.imageUrl }] : undefined,
-    },
+      imageUrl: meta.imageUrl,
+    }),
   };
 }
 

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import TourMap from "@/components/TourMap";
+import { buildOpenGraph } from "@/lib/site-metadata";
 
 export const metadata: Metadata = {
   title: "Tour Map",
@@ -8,11 +9,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/tour-map",
   },
-  openGraph: {
+  openGraph: buildOpenGraph({
     title: "Tour Map — Greenland Arctic Xplorers",
     description: "Interactive map of all expedition routes and destinations across Greenland.",
     url: "/tour-map",
-  },
+  }),
 };
 
 export default function TourMapPage() {

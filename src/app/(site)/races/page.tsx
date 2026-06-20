@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import BokunEventCards from "@/components/BokunEventCards";
 import PageHero from "@/components/PageHero";
+import { buildOpenGraph } from "@/lib/site-metadata";
 
 export const metadata: Metadata = {
   title: "Races",
@@ -9,12 +10,12 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/races",
   },
-  openGraph: {
+  openGraph: buildOpenGraph({
     title: "Races — Greenland Arctic Xplorers",
     description:
       "Challenge yourself in Greenland's most extreme racing environments — trail runs, ultra-marathons, and Arctic endurance events.",
     url: "/races",
-  },
+  }),
 };
 
 export default function RacesPage() {
