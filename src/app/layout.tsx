@@ -24,8 +24,8 @@ const inter = Inter({
   display: "swap",
 });
 
-const SITE_URL = "https://www.greenlandarcticxplorers.com";
-const SITE_NAME = "Greenland Arctic Xplorers";
+import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/site-metadata";
+
 const SITE_DESCRIPTION =
   "Experience the pristine Arctic wilderness of Greenland. Glacier expeditions, Northern Lights chases, fjord kayaking, and unforgettable adventures in the world's last frontier.";
 
@@ -64,20 +64,13 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     title: `${SITE_NAME} — Expedition Tours & Adventures`,
     description: SITE_DESCRIPTION,
-    images: [
-      {
-        url: "/hero1.JPEG",
-        width: 1200,
-        height: 630,
-        alt: SITE_NAME,
-      },
-    ],
+    images: [DEFAULT_OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
     title: `${SITE_NAME} — Expedition Tours & Adventures`,
     description: SITE_DESCRIPTION,
-    images: ["/hero1.JPEG"],
+    images: [DEFAULT_OG_IMAGE.url],
   },
   icons: {
     icon: "/gax-logo.png",

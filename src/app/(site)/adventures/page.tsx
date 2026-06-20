@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import BokunEventCards from "@/components/BokunEventCards";
 import PageHero from "@/components/PageHero";
+import { buildOpenGraph } from "@/lib/site-metadata";
 
 export const metadata: Metadata = {
   title: "Adventures",
@@ -8,11 +9,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/adventures",
   },
-  openGraph: {
+  openGraph: buildOpenGraph({
     title: "Adventures — Greenland Arctic Xplorers",
     description: "Explore Arctic adventures from glacier hiking to Northern Lights chasing.",
     url: "/adventures",
-  },
+  }),
 };
 
 export default function ActivitiesPage() {

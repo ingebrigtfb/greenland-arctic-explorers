@@ -4,6 +4,7 @@ import ExploreTerritory from "@/components/ExploreTerritory";
 import FeaturedTours from "@/components/FeaturedTours";
 import UpcomingEvents from "@/components/UpcomingEvents";
 import CTASection from "@/components/CTASection";
+import { buildOpenGraph } from "@/lib/site-metadata";
 
 export const metadata: Metadata = {
   title: "Expedition Tours & Adventures in Greenland",
@@ -12,12 +13,12 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
-  openGraph: {
+  openGraph: buildOpenGraph({
     title: "Greenland Arctic Xplorers — Expedition Tours & Adventures",
     description:
       "Discover Greenland with Arctic expedition tours, endurance races, guided adventures, and remote Arctic lodges.",
     url: "/",
-  },
+  }),
 };
 
 export default function Home() {
