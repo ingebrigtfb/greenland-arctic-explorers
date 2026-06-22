@@ -43,7 +43,7 @@ export default function Hero() {
             Greenland
           </h1>
           <p className="mb-4 font-heading text-[clamp(1.25rem,3vw,2rem)] font-medium tracking-[0.08em] text-frost">
-            Arctic Explorers
+            Arctic Xplorers
           </p>
           <p className="mb-6 font-body text-[clamp(0.95rem,1.5vw,1.15rem)] font-medium leading-relaxed text-white/90">
             We know nature – both on land and at sea!

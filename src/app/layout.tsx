@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Montserrat, Inter, Sora } from "next/font/google";
 import Providers from "@/lib/Providers";
+import { DEFAULT_OG_IMAGE, SITE_URL, SITE_NAME, SITE_DESCRIPTION, SITE_PHONE, SITE_EMAIL, SITE_SOCIALS } from "@/lib/site-metadata";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -24,16 +25,11 @@ const inter = Inter({
   display: "swap",
 });
 
-import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/site-metadata";
-
-const SITE_DESCRIPTION =
-  "Experience the pristine Arctic wilderness of Greenland. Glacier expeditions, Northern Lights chases, fjord kayaking, and unforgettable adventures in the world's last frontier.";
-
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${SITE_NAME} — Expedition Tours & Adventures`,
-    template: `%s — ${SITE_NAME}`,
+    default: `Greenland Arctic Tours & Expedition Adventures | ${SITE_NAME}`,
+    template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
   keywords: [
@@ -62,13 +58,13 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: SITE_URL,
     siteName: SITE_NAME,
-    title: `${SITE_NAME} — Expedition Tours & Adventures`,
+    title: `Greenland Arctic Tours & Expedition Adventures | ${SITE_NAME}`,
     description: SITE_DESCRIPTION,
     images: [DEFAULT_OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE_NAME} — Expedition Tours & Adventures`,
+    title: `Greenland Arctic Tours & Expedition Adventures | ${SITE_NAME}`,
     description: SITE_DESCRIPTION,
     images: [DEFAULT_OG_IMAGE.url],
   },
@@ -84,13 +80,16 @@ const organizationJsonLd = {
   name: SITE_NAME,
   url: SITE_URL,
   logo: `${SITE_URL}/gax-logo.png`,
-  email: "info@gax.gl",
-  sameAs: [
-    "https://www.facebook.com/greenlandarcticxplorers",
-    "https://www.instagram.com/greenlandarcticxplorers",
-    "https://www.youtube.com/@nuukkapextremerunningrace110",
-    "https://www.tripadvisor.com/Profile/Roam10565999676",
-  ],
+  image: `${SITE_URL}/hero1.JPEG`,
+  email: SITE_EMAIL,
+  telephone: SITE_PHONE,
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "3905 Qinngorput",
+    addressLocality: "Nuuk",
+    addressCountry: "GL",
+  },
+  sameAs: SITE_SOCIALS,
   areaServed: {
     "@type": "Country",
     name: "Greenland",

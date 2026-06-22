@@ -6,19 +6,25 @@ import UpcomingEvents from "@/components/UpcomingEvents";
 import CTASection from "@/components/CTASection";
 import { buildOpenGraph } from "@/lib/site-metadata";
 
+const TITLE = "Greenland Arctic Tours & Expedition Adventures | Greenland Arctic Xplorers";
+const DESCRIPTION =
+  "Book Greenland tours, Arctic endurance races, guided adventures, and remote Arctic lodges with Greenland Arctic Xplorers. Small-group expeditions led by local Nuuk-based guides.";
+
 export const metadata: Metadata = {
-  title: "Expedition Tours & Adventures in Greenland",
-  description:
-    "Discover Greenland with Arctic expedition tours, endurance races, guided adventures, and remote Arctic lodges. Book your unforgettable trip with Greenland Arctic Xplorers.",
+  title: { absolute: TITLE },
+  description: DESCRIPTION,
   alternates: {
     canonical: "/",
   },
   openGraph: buildOpenGraph({
-    title: "Greenland Arctic Xplorers — Expedition Tours & Adventures",
-    description:
-      "Discover Greenland with Arctic expedition tours, endurance races, guided adventures, and remote Arctic lodges.",
+    title: TITLE,
+    description: DESCRIPTION,
     url: "/",
   }),
+  twitter: {
+    title: TITLE,
+    description: DESCRIPTION,
+  },
 };
 
 export default function Home() {

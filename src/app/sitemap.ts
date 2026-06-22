@@ -2,8 +2,7 @@ import type { MetadataRoute } from "next";
 import { getPublishedItems, type CollectionName } from "@/lib/content";
 import { firebaseConfigured } from "@/lib/firebase";
 import { listBokunRaces, listBokunTours, listBokunActivities, listBokunLodges } from "@/lib/bokun";
-
-const SITE_URL = "https://www.greenlandarcticxplorers.com";
+import { SITE_URL } from "@/lib/site-metadata";
 
 const STATIC_ROUTES = [
   { path: "", priority: 1, changeFrequency: "weekly" as const },

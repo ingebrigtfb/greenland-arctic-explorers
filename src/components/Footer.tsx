@@ -91,7 +91,16 @@ export default function Footer() {
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row">
           <p className="font-body text-xs text-mist/80">
             &copy; {new Date().getFullYear()} Greenland Arctic Explorers. All
-            rights reserved.
+            rights reserved. Developed and maintained by{" "}
+            <a
+              href="https://www.nordcode.no/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline transition-colors hover:text-ice-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glacier rounded"
+            >
+              Nordcode
+            </a>
+            .
           </p>
           <div className="flex items-center gap-5">
             {/* Social icons */}
