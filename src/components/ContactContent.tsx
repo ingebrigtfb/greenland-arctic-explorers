@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import { getContact } from "@/lib/content";
 import type { ContactContent as ContactData } from "@/lib/types";
 import {
@@ -14,6 +15,7 @@ import {
 } from "lucide-react";
 
 export default function ContactContent() {
+  const { executeRecaptcha } = useGoogleReCaptcha();
   const [data, setData] = useState<ContactData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -45,10 +47,14 @@ export default function ContactContent() {
     setResult(null);
 
     try {
+      const recaptchaToken = executeRecaptcha
+        ? await executeRecaptcha("contact_form")
+        : "";
+
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, recaptchaToken }),
       });
 
       const json = await res.json();

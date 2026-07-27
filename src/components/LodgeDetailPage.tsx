@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -283,6 +284,7 @@ type FormStatus = "idle" | "sending" | "success" | "error";
 function EnquiryCard({ lodgeName, price, location }: {
   lodgeName: string; price?: number; location?: string;
 }) {
+  const { executeRecaptcha } = useGoogleReCaptcha();
   const [form, setForm] = useState<EnquiryForm>({ name: "", email: "", phone: "", message: "" });
   const [status, setStatus] = useState<FormStatus>("idle");
 
@@ -295,10 +297,14 @@ function EnquiryCard({ lodgeName, price, location }: {
     e.preventDefault();
     setStatus("sending");
     try {
+      const recaptchaToken = executeRecaptcha
+        ? await executeRecaptcha("lodge_enquiry")
+        : "";
+
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, subject: lodgeName }),
+        body: JSON.stringify({ ...form, subject: lodgeName, recaptchaToken }),
       });
       setStatus(res.ok ? "success" : "error");
     } catch {

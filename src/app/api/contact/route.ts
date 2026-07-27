@@ -3,6 +3,20 @@ import { Resend } from "resend";
 
 const TO_EMAIL = process.env.CONTACT_EMAIL || "info@gax.gl";
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+const RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET_KEY;
+const RECAPTCHA_SCORE_THRESHOLD = 0.5;
+
+async function verifyRecaptcha(token: string): Promise<boolean> {
+  if (!RECAPTCHA_SECRET) return true; // skip verification if not configured
+  if (!token) return false;
+  const res = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `secret=${RECAPTCHA_SECRET}&response=${token}`,
+  });
+  const data = await res.json() as { success: boolean; score?: number; action?: string };
+  return data.success && (data.score ?? 1) >= RECAPTCHA_SCORE_THRESHOLD;
+}
 
 export async function POST(req: Request) {
   if (!process.env.RESEND_API_KEY) {
@@ -16,12 +30,13 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { name, email, phone, subject, message } = body as {
+    const { name, email, phone, subject, message, recaptchaToken } = body as {
       name?: string;
       email?: string;
       phone?: string;
       subject?: string;
       message?: string;
+      recaptchaToken?: string;
     };
 
     if (!name || !email || !message) {
@@ -35,6 +50,14 @@ export async function POST(req: Request) {
     if (!emailRegex.test(email)) {
       return NextResponse.json(
         { error: "Please enter a valid email address." },
+        { status: 400 },
+      );
+    }
+
+    const captchaOk = await verifyRecaptcha(recaptchaToken ?? "");
+    if (!captchaOk) {
+      return NextResponse.json(
+        { error: "reCAPTCHA verification failed. Please try again." },
         { status: 400 },
       );
     }
