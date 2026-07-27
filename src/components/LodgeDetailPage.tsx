@@ -1,15 +1,12 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import Script from "next/script";
 import Image from "next/image";
 import Link from "next/link";
 import {
   MapPin, ArrowLeft, ChevronLeft, ChevronRight, X,
 } from "lucide-react";
-
-const BOKUN_CHANNEL_UUID = "159bdf9f-bfe0-451a-8901-42c0293704e6";
 
 type GalleryImage = { url: string; alt?: string; storagePath?: string };
 
@@ -44,21 +41,13 @@ export default function LodgeDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const [lodge, setLodge] = useState<Lodge | null>(null);
   const [loading, setLoading] = useState(true);
-  const [bokunId, setBokunId] = useState<string | null>(null);
-  const [bookingOpen, setBookingOpen] = useState(false);
   const [lightbox, setLightbox] = useState<number | null>(null);
-
-  const reloadBokunWidgets = useCallback(() => {
-    const w = window as unknown as { BokunWidgetsLoader?: { loaded?: boolean; load?: () => void } };
-    if (w.BokunWidgetsLoader?.load) { w.BokunWidgetsLoader.loaded = false; w.BokunWidgetsLoader.load(); }
-  }, []);
 
   useEffect(() => {
     if (!slug) return;
     const match = slug.match(/-(\d{5,})$/);
     if (match) {
       const id = match[1];
-      setBokunId(id);
       fetch(`/api/bokun/activity/${encodeURIComponent(id)}`)
         .then(r => r.json())
         .then(data => setLodge(data?.race ?? null))
@@ -70,43 +59,9 @@ export default function LodgeDetailPage() {
   }, [slug]);
 
   useEffect(() => {
-    if (bokunId && lodge) { const t = setTimeout(reloadBokunWidgets, 300); return () => clearTimeout(t); }
-  }, [bokunId, lodge, reloadBokunWidgets]);
-
-  useEffect(() => {
-    document.body.style.overflow = (bookingOpen || lightbox !== null) ? "hidden" : "";
+    document.body.style.overflow = lightbox !== null ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
-  }, [bookingOpen, lightbox]);
-
-  useEffect(() => {
-    if (bookingOpen) { const t = setTimeout(reloadBokunWidgets, 200); return () => clearTimeout(t); }
-  }, [bookingOpen, reloadBokunWidgets]);
-
-  useEffect(() => {
-    if (!bookingOpen || !lodge) return;
-    function goToConfirmation(receiptUrl?: string) {
-      const p = new URLSearchParams();
-      if (lodge!.title) p.set("tour", lodge!.title);
-      if (receiptUrl) p.set("receipt", receiptUrl);
-      window.location.href = `/booking/confirmation?${p.toString()}`;
-    }
-    const orig = window.open;
-    window.open = function(url?: string | URL, ...args: unknown[]) {
-      const s = url?.toString() ?? "";
-      if (s.includes("bookings.bokun.io") || s.includes("bookingReceipt")) { goToConfirmation(s); return null; }
-      return orig.call(window, url, ...(args as [string?, string?]));
-    } as typeof window.open;
-    const onMsg = (e: MessageEvent) => {
-      const raw = typeof e.data === "string" ? e.data : JSON.stringify(e.data ?? "");
-      if (raw.includes("bookingReceipt") || raw.includes("booking-confirmed") || raw.includes("booking-complete")) {
-        let r = "";
-        try { const p = typeof e.data === "string" ? JSON.parse(e.data) : e.data; r = p?.receiptUrl || p?.url || ""; } catch { /**/ }
-        goToConfirmation(r);
-      }
-    };
-    window.addEventListener("message", onMsg);
-    return () => { window.open = orig; window.removeEventListener("message", onMsg); };
-  }, [bookingOpen, lodge]);
+  }, [lightbox]);
 
   if (loading) return (
     <div className="min-h-screen bg-frost-light pt-24">
@@ -216,62 +171,17 @@ export default function LodgeDetailPage() {
               )}
             </div>
 
-            {/* ─── STICKY BOOKING CARD ─── */}
-            <div className="hidden lg:block">
-              <BookingCard
+            {/* ─── STICKY ENQUIRY CARD ─── */}
+            <div>
+              <EnquiryCard
+                lodgeName={lodge.title}
                 price={lodge.price}
                 location={lodge.location ?? lodge.meetingPoint}
-                onBook={() => setBookingOpen(true)}
               />
             </div>
           </div>
         </div>
-
-        {/* ─── MOBILE BOOKING BAR ─── */}
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-mist bg-white/95 px-6 py-4 backdrop-blur-md lg:hidden">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              {lodge.price
-                ? <><span className="font-display text-xl font-800 text-arctic-navy">{formatPrice(lodge.price)}</span><span className="ml-1 font-body text-xs text-granite">/ person</span></>
-                : <span className="font-heading text-sm font-600 text-arctic-navy">Contact for pricing</span>
-              }
-            </div>
-            <button
-              onClick={() => setBookingOpen(true)}
-              className="flex-1 max-w-[200px] inline-flex items-center justify-center rounded-xl bg-glacier px-6 py-3 font-heading text-sm font-600 tracking-wider text-white transition-all hover:bg-polar-teal active:scale-[0.98]"
-            >
-              Book This Lodge
-            </button>
-          </div>
-        </div>
       </div>
-
-      {/* ─── BOOKING MODAL ─── */}
-      {bokunId && (
-        <>
-          <div className={`fixed inset-0 z-[300] flex items-center justify-center transition-all duration-300 ${bookingOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`}>
-            <div className="absolute inset-0 bg-arctic-navy/80 backdrop-blur-sm" onClick={() => setBookingOpen(false)} />
-            <div className={`relative z-10 mx-4 w-full max-w-2xl transition-all duration-300 ${bookingOpen ? "translate-y-0 scale-100" : "translate-y-4 scale-95"}`}>
-              <div className="flex items-center justify-between rounded-t-2xl border-b border-mist bg-white px-6 py-5">
-                <div>
-                  <h2 className="font-display text-lg font-700 text-arctic-navy">Book This Lodge</h2>
-                  <p className="mt-0.5 font-body text-xs text-granite">Select your dates and number of guests.</p>
-                </div>
-                <button onClick={() => setBookingOpen(false)} className="flex h-9 w-9 items-center justify-center rounded-xl border border-mist text-granite hover:bg-frost-light hover:text-arctic-navy" aria-label="Close">
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-              <div className="max-h-[70vh] overflow-y-auto rounded-b-2xl bg-white">
-                {bookingOpen && (
-                  <div className="bokunWidget" data-src={`https://widgets.bokun.io/online-sales/${BOKUN_CHANNEL_UUID}/experience-calendar/${bokunId}`} />
-                )}
-              </div>
-            </div>
-          </div>
-          <Script src={`https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${BOKUN_CHANNEL_UUID}`} strategy="lazyOnload" onLoad={reloadBokunWidgets} />
-          <style jsx global>{`.bokunWidget iframe { width:100%!important; min-height:500px; border:none!important; }`}</style>
-        </>
-      )}
 
       {/* ─── LIGHTBOX ─── */}
       {lightbox !== null && allPhotos.length > 0 && (
@@ -367,9 +277,38 @@ function PhotoGrid({ photos, title, onOpen }: { photos: GalleryImage[]; title: s
   );
 }
 
-function BookingCard({ price, location, onBook }: {
-  price?: number; location?: string; onBook: () => void;
+type EnquiryForm = { name: string; email: string; phone: string; message: string };
+type FormStatus = "idle" | "sending" | "success" | "error";
+
+function EnquiryCard({ lodgeName, price, location }: {
+  lodgeName: string; price?: number; location?: string;
 }) {
+  const [form, setForm] = useState<EnquiryForm>({ name: "", email: "", phone: "", message: "" });
+  const [status, setStatus] = useState<FormStatus>("idle");
+
+  function set(field: keyof EnquiryForm) {
+    return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      setForm(f => ({ ...f, [field]: e.target.value }));
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setStatus("sending");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, subject: lodgeName }),
+      });
+      setStatus(res.ok ? "success" : "error");
+    } catch {
+      setStatus("error");
+    }
+  }
+
+  const inputClass =
+    "w-full rounded-xl border border-mist bg-frost-light px-4 py-3 font-body text-sm text-arctic-navy placeholder:text-granite focus:border-glacier focus:outline-none";
+
   return (
     <div className="sticky top-24">
       <div className="rounded-2xl border border-mist bg-white p-6 shadow-[0_4px_24px_rgba(13,27,42,0.10)]">
@@ -389,18 +328,37 @@ function BookingCard({ price, location, onBook }: {
           </div>
         )}
 
-        <button
-          onClick={onBook}
-          className="w-full inline-flex items-center justify-center rounded-xl bg-glacier px-6 py-3.5 font-heading text-sm font-600 tracking-wider text-white transition-all hover:bg-polar-teal active:scale-[0.98]"
-        >
-          Book This Lodge
-        </button>
+        <h3 className="mb-4 font-display text-base font-700 text-arctic-navy">Enquire about this lodge</h3>
 
-        <div className="mt-5 border-t border-mist pt-5 text-center">
-          <Link href="/contact-us" className="font-heading text-sm font-600 text-polar-teal underline-offset-2 hover:underline">
-            Contact us with questions
-          </Link>
-        </div>
+        {status === "success" ? (
+          <div className="rounded-xl bg-polar-teal/10 p-4 text-center">
+            <p className="font-heading text-sm font-600 text-polar-teal">Message sent! We&apos;ll be in touch soon.</p>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-3">
+            {status === "error" && (
+              <p className="font-body text-xs text-red-600">Something went wrong. Please try again.</p>
+            )}
+            <input required type="text" placeholder="Your name" value={form.name} onChange={set("name")} className={inputClass} />
+            <input required type="email" placeholder="Email address" value={form.email} onChange={set("email")} className={inputClass} />
+            <input type="tel" placeholder="Phone (optional)" value={form.phone} onChange={set("phone")} className={inputClass} />
+            <textarea
+              required
+              rows={3}
+              placeholder="Your message…"
+              value={form.message}
+              onChange={set("message")}
+              className={`${inputClass} resize-none`}
+            />
+            <button
+              type="submit"
+              disabled={status === "sending"}
+              className="w-full inline-flex items-center justify-center rounded-xl bg-glacier px-6 py-3.5 font-heading text-sm font-600 tracking-wider text-white transition-all hover:bg-polar-teal active:scale-[0.98] disabled:opacity-60"
+            >
+              {status === "sending" ? "Sending…" : "Send Enquiry"}
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );
