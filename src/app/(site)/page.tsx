@@ -5,7 +5,7 @@ import FeaturedTours from "@/components/FeaturedTours";
 import UpcomingEvents from "@/components/UpcomingEvents";
 import CTASection from "@/components/CTASection";
 import { buildOpenGraph } from "@/lib/site-metadata";
-import { listBokunUpcoming, listBokunLodges } from "@/lib/bokun";
+import { listBokunHighlights, listBokunLodges } from "@/lib/bokun";
 
 export const revalidate = 3600;
 
@@ -31,15 +31,15 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const [events, lodges] = await Promise.all([
-    listBokunUpcoming(),
+  const [highlights, lodges] = await Promise.all([
+    listBokunHighlights(),
     listBokunLodges(),
   ]);
 
   return (
     <>
       <Hero />
-      <UpcomingEvents events={events} />
+      <UpcomingEvents events={highlights.items} mode={highlights.mode} />
       <ExploreTerritory />
       <FeaturedTours lodges={lodges} />
       <CTASection />

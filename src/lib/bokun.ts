@@ -172,6 +172,50 @@ export async function listBokunUpcoming(): Promise<BokunRaceCard[]> {
     .sort((a, b) => (a.date ?? "").localeCompare(b.date ?? ""));
 }
 
+export type HighlightMode = "upcoming" | "featured";
+
+export type Highlights = {
+  items: BokunRaceCard[];
+  mode: HighlightMode;
+};
+
+function dayIndex(now: Date): number {
+  return Math.floor(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) / 86_400_000);
+}
+
+/**
+ * Rotate a stable window through `pool`, advancing one position per day.
+ *
+ * Deliberately not random: the page is cached by ISR, so a random pick would be
+ * frozen until the next revalidation anyway. A date-derived offset gives the same
+ * variety while staying identical for every visitor on a given day, which keeps
+ * the cached HTML, the crawler's view and a local reproduction in agreement.
+ */
+function rotateDaily<T>(pool: T[], count: number, now: Date): T[] {
+  if (pool.length === 0) return [];
+  const take = Math.min(count, pool.length);
+  const offset = dayIndex(now) % pool.length;
+  return Array.from({ length: take }, (_, i) => pool[(offset + i) % pool.length]);
+}
+
+/**
+ * Dated events when there are any, otherwise a daily rotation of tours and
+ * adventures — so the homepage highlight section is never empty just because
+ * next season's race dates haven't been published yet.
+ */
+export async function listBokunHighlights(count = 6, now = new Date()): Promise<Highlights> {
+  const upcoming = await listBokunUpcoming();
+  if (upcoming.length > 0) return { items: upcoming, mode: "upcoming" };
+
+  const results = await Promise.allSettled([listBokunTours(), listBokunActivities()]);
+  const pool = results
+    .flatMap((r) => (r.status === "fulfilled" ? r.value : []))
+    // Sort by id so the rotation window is stable across builds.
+    .sort((a, b) => a.id.localeCompare(b.id));
+
+  return { items: rotateDaily(pool, count, now), mode: "featured" };
+}
+
 function matchesProductCode(externalId: unknown, productCode: string) {
   const code = productCode.trim().toLowerCase();
   if (!code) return false;

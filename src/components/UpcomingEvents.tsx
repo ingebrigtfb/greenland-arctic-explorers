@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, MapPin, Clock, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import type { BokunRaceCard } from "@/lib/bokun";
+import type { BokunRaceCard, HighlightMode } from "@/lib/bokun";
 
 function formatDate(dateStr?: string) {
   if (!dateStr) return null;
@@ -20,7 +20,29 @@ function formatPrice(price?: number) {
 
 const PAGE_SIZE = 3;
 
-export default function UpcomingEvents({ events }: { events: BokunRaceCard[] }) {
+const COPY: Record<HighlightMode, { eyebrow: string; heading: string; label: string }> = {
+  upcoming: {
+    eyebrow: "Expeditions, Tours & Highlights",
+    heading: "Upcoming Expeditions",
+    label: "Upcoming Expeditions",
+  },
+  // Shown when nothing on the calendar has a future date — these are undated
+  // experiences, so the section must not call them "upcoming".
+  featured: {
+    eyebrow: "Tours & Adventures",
+    heading: "Experiences to Book Year-Round",
+    label: "Featured Experiences",
+  },
+};
+
+export default function UpcomingEvents({
+  events,
+  mode = "upcoming",
+}: {
+  events: BokunRaceCard[];
+  mode?: HighlightMode;
+}) {
+  const copy = COPY[mode];
   const sectionRef = useRef<HTMLElement>(null);
   const snowRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -64,7 +86,7 @@ export default function UpcomingEvents({ events }: { events: BokunRaceCard[] }) 
     <section
       id="events"
       ref={sectionRef}
-      aria-label="Upcoming Expeditions"
+      aria-label={copy.label}
       className="relative overflow-hidden bg-frost-light py-20 lg:py-28"
     >
       <style>{`
@@ -103,10 +125,10 @@ export default function UpcomingEvents({ events }: { events: BokunRaceCard[] }) 
         >
           <div>
             <p className="mb-2 font-heading text-xs font-600 uppercase tracking-[0.15em] text-polar-teal">
-              Expeditions, Tours & Highlights
+              {copy.eyebrow}
             </p>
             <h2 className="font-display text-[clamp(1.75rem,3.5vw,2.5rem)] font-700 leading-tight text-arctic-navy">
-              Upcoming Expeditions
+              {copy.heading}
             </h2>
           </div>
           {totalPages > 1 && (
@@ -291,7 +313,7 @@ export default function UpcomingEvents({ events }: { events: BokunRaceCard[] }) 
 
         {!featured && (
           <p className="py-12 text-center font-body text-stone">
-            No upcoming expeditions right now. Check back soon.
+            Nothing to show right now. Check back soon.
           </p>
         )}
       </div>
