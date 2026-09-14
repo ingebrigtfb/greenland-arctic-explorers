@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { extractDateFromTitle } from "./titleDate";
+import { entryByBokunId, slugFor, type Section } from "./catalogue";
 
 function slugify(text: string): string {
   return text
@@ -27,6 +28,8 @@ export type BokunRaceCard = {
   location?: string;
   date?: string;
   collection: string;
+  /** Raw Bokun product code, for catalogue drift reporting. */
+  externalId?: string;
   source: "bokun";
 };
 
@@ -41,10 +44,14 @@ export type BokunRaceDetail = {
   gallery?: BokunImage[];
   price?: number;
   duration?: string;
+  /** ISO 8601 duration (e.g. "PT6H", "P3D") for schema.org Event.duration. */
+  durationIso?: string;
   location?: string;
   meetingPoint?: string;
   date?: string;
   videoUrl?: string;
+  /** ISO timestamp of the last edit in Bokun, for sitemap <lastmod>. */
+  lastModified?: string;
   source: "bokun";
 };
 
@@ -98,6 +105,11 @@ function bokunBaseUrl() {
   return process.env.BOKUN_API_BASE_URL ?? "https://api.bokun.io";
 }
 
+// Catalogue data changes rarely; cache it so listing and detail pages can be
+// statically generated and revalidated on a schedule rather than hit Bokun per request.
+const REVALIDATE_SECONDS = Number(process.env.BOKUN_REVALIDATE_SECONDS ?? "3600");
+const bokunCache = { next: { revalidate: REVALIDATE_SECONDS } } as const;
+
 type BokunDerivedUrls = {
   large?: { cleanUrl?: string | null } | null;
   preview?: { cleanUrl?: string | null } | null;
@@ -137,30 +149,105 @@ function mapBokunPhoto(photo: unknown): BokunImage | undefined {
 }
 
 export async function listBokunRaces(): Promise<BokunRaceCard[]> {
-  return listBokunByProductCode("race", "races");
+  return listBokunBySection("races");
 }
 
 export async function listBokunTours(): Promise<BokunRaceCard[]> {
-  return listBokunByProductCode("tour", "tours");
+  return listBokunBySection("tours");
 }
 
 export async function listBokunActivities(): Promise<BokunRaceCard[]> {
-  return listBokunByProductCode("adventures", "adventures");
+  return listBokunBySection("adventures");
 }
 
 export async function listBokunLodges(): Promise<BokunRaceCard[]> {
-  return listBokunByProductCode("lodge", "arctic-lodges");
+  return listBokunBySection("arctic-lodges");
 }
 
-function matchesProductCode(externalId: unknown, productCode: string) {
-  const code = productCode.trim().toLowerCase();
-  if (!code) return false;
+/** Every dated product across all four collections, soonest first. */
+export async function listBokunUpcoming(): Promise<BokunRaceCard[]> {
+  const today = new Date().toISOString().slice(0, 10);
+  const results = await Promise.allSettled([
+    listBokunRaces(),
+    listBokunTours(),
+    listBokunActivities(),
+    listBokunLodges(),
+  ]);
+  return results
+    .flatMap((r) => (r.status === "fulfilled" ? r.value : []))
+    .filter((item) => item.date && item.date >= today)
+    .sort((a, b) => (a.date ?? "").localeCompare(b.date ?? ""));
+}
+
+export type HighlightMode = "upcoming" | "featured";
+
+export type Highlights = {
+  items: BokunRaceCard[];
+  mode: HighlightMode;
+};
+
+function dayIndex(now: Date): number {
+  return Math.floor(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) / 86_400_000);
+}
+
+/**
+ * Rotate a stable window through `pool`, advancing one position per day.
+ *
+ * Deliberately not random: the page is cached by ISR, so a random pick would be
+ * frozen until the next revalidation anyway. A date-derived offset gives the same
+ * variety while staying identical for every visitor on a given day, which keeps
+ * the cached HTML, the crawler's view and a local reproduction in agreement.
+ */
+function rotateDaily<T>(pool: T[], count: number, now: Date): T[] {
+  if (pool.length === 0) return [];
+  const take = Math.min(count, pool.length);
+  const offset = dayIndex(now) % pool.length;
+  return Array.from({ length: take }, (_, i) => pool[(offset + i) % pool.length]);
+}
+
+/**
+ * Dated events when there are any, otherwise a daily rotation of tours and
+ * adventures — so the homepage highlight section is never empty just because
+ * next season's race dates haven't been published yet.
+ */
+export async function listBokunHighlights(count = 6, now = new Date()): Promise<Highlights> {
+  const upcoming = await listBokunUpcoming();
+  if (upcoming.length > 0) return { items: upcoming, mode: "upcoming" };
+
+  const results = await Promise.allSettled([listBokunTours(), listBokunActivities()]);
+  const pool = results
+    .flatMap((r) => (r.status === "fulfilled" ? r.value : []))
+    // Sort by id so the rotation window is stable across builds.
+    .sort((a, b) => a.id.localeCompare(b.id));
+
+  return { items: rotateDaily(pool, count, now), mode: "featured" };
+}
+
+/**
+ * Section for a product.
+ *
+ * The curated map wins, so a URL cannot move because someone edited a product
+ * code in Bokun — that field is shared with another application and is free
+ * text. Products not yet in the map fall back to matching the code, so a newly
+ * added product still reaches the right listing on its own.
+ */
+function sectionForProduct(id: unknown, externalId: unknown): Section | null {
+  const mapped = id == null ? undefined : entryByBokunId(String(id));
+  if (mapped) return mapped.section;
+  return sectionFromProductCode(externalId);
+}
+
+export function sectionFromProductCode(externalId: unknown): Section | null {
   const v = externalId == null ? "" : String(externalId).trim().toLowerCase();
-  // Matches case-insensitively (e.g. "Tour" / "tour") and supports "tour-123" style codes.
-  return v === code || v.includes(`${code}-`) || v.includes(code);
+  if (!v) return null;
+  if (v.includes("race")) return "races";
+  if (v.includes("lodge") || v.includes("cabin")) return "arctic-lodges";
+  if (v.includes("adventure") || v.includes("activity") || v.includes("activities")) return "adventures";
+  if (v.includes("tour")) return "tours";
+  return null;
 }
 
-async function listBokunByProductCode(productCode: string, collection: string): Promise<BokunRaceCard[]> {
+async function listBokunBySection(section: Section): Promise<BokunRaceCard[]> {
   const lang = process.env.BOKUN_RACE_LANG ?? "EN";
   const currency = process.env.BOKUN_RACE_CURRENCY ?? "DKK";
   const pageSize = Number(process.env.BOKUN_RACE_PAGE_SIZE ?? process.env.BOKUN_LIST_PAGE_SIZE ?? "100");
@@ -171,6 +258,7 @@ async function listBokunByProductCode(productCode: string, collection: string): 
 
   const res = await fetch(bokunBaseUrl() + pathWithQuery, {
     method: "POST",
+    ...bokunCache,
     headers: {
       "Content-Type": "application/json;charset=UTF-8",
       "X-Bokun-Date": dateStr,
@@ -216,7 +304,7 @@ async function listBokunByProductCode(productCode: string, collection: string): 
   }
 
   const filtered = items.filter(
-    (item) => item.id != null && matchesProductCode(item.externalId, productCode)
+    (item) => item.id != null && sectionForProduct(item.id, item.externalId) === section
   );
 
   filtered.sort((a, b) => {
@@ -232,10 +320,10 @@ async function listBokunByProductCode(productCode: string, collection: string): 
   return filtered.map((item) => {
     const priceNum = typeof item.price === "number" ? item.price : Number(item.price);
     const id = String(item.id);
-    const titleSlug = slugify(String(item.title ?? "untitled"));
+    const legacySlug = `${slugify(String(item.title ?? "untitled"))}-${id}`;
     return {
       id,
-      slug: `${titleSlug}-${id}`,
+      slug: slugFor(id, legacySlug),
       title: String(item.title ?? "Untitled"),
       shortDescription: item.excerpt ? String(item.excerpt) : undefined,
       featuredImage: mapBokunPhoto(item.keyPhoto),
@@ -243,21 +331,16 @@ async function listBokunByProductCode(productCode: string, collection: string): 
       duration: item.durationText ? String(item.durationText) : undefined,
       location: item.locationCode?.location ? String(item.locationCode.location) : undefined,
       date: pickDate(item),
-      collection,
+      collection: section,
+      externalId: item.externalId ?? undefined,
       source: "bokun",
     };
   });
 }
 
-function hrefForExternalId(externalId?: string | null, slug?: string) {
-  const code = (externalId ?? "").trim().toLowerCase();
-  const s = slug ?? "";
-  if (code.includes("tour")) return `/tours/${s}`;
-  if (code.includes("race")) return `/races/${s}`;
-  if (code.includes("adventures") || code.includes("adventure") || code.includes("activities") || code.includes("activity")) return `/adventures/${s}`;
-  if (code.includes("lodge") || code.includes("cabin")) return `/arctic-lodges/${s}`;
-  // Fallback: treat as an adventure
-  return `/adventures/${s}`;
+function hrefForProduct(id: string, externalId: string | null | undefined, slug: string) {
+  const section = sectionForProduct(id, externalId) ?? "adventures";
+  return `/${section}/${slug}`;
 }
 
 export async function listBokunMapPoints(): Promise<BokunMapPoint[]> {
@@ -271,6 +354,7 @@ export async function listBokunMapPoints(): Promise<BokunMapPoint[]> {
 
   const res = await fetch(bokunBaseUrl() + pathWithQuery, {
     method: "POST",
+    ...bokunCache,
     headers: {
       "Content-Type": "application/json;charset=UTF-8",
       "X-Bokun-Date": dateStr,
@@ -327,6 +411,7 @@ export async function listBokunMapPoints(): Promise<BokunMapPoint[]> {
       const sig = signRequest({ method: "GET", pathWithQuery: detailPath, dateStr: ds });
       const dr = await fetch(bokunBaseUrl() + detailPath, {
         method: "GET",
+        ...bokunCache,
         headers: { "X-Bokun-Date": ds, "X-Bokun-AccessKey": getRequiredEnv("BOKUN_ACCESS_KEY"), "X-Bokun-Signature": sig },
       });
       if (!dr.ok) return;
@@ -368,14 +453,14 @@ export async function listBokunMapPoints(): Promise<BokunMapPoint[]> {
     const lng = Number.isFinite(spLng) ? spLng : (typeof fallbackCenter?.lng === "number" ? fallbackCenter.lng : NaN);
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
 
-    const slug = `${slugify(title)}-${id}`;
+    const slug = slugFor(id, `${slugify(title)}-${id}`);
     const priceNum = typeof item.price === "number" ? item.price : Number(item.price);
     points.push({
       id,
       title,
       externalId: item.externalId ?? undefined,
       slug,
-      href: hrefForExternalId(item.externalId, slug),
+      href: hrefForProduct(id, item.externalId, slug),
       featuredImageUrl: getDerivedImageUrl(item.keyPhoto) ?? undefined,
       shortDescription: item.excerpt ? String(item.excerpt) : undefined,
       price: Number.isFinite(priceNum) ? priceNum : undefined,
@@ -407,6 +492,7 @@ export async function getBokunRaceDetail(id: string): Promise<BokunRaceDetail> {
 
   const res = await fetch(bokunBaseUrl() + pathWithQuery, {
     method: "GET",
+    ...bokunCache,
     headers: {
       "X-Bokun-Date": dateStr,
       "X-Bokun-AccessKey": getRequiredEnv("BOKUN_ACCESS_KEY"),
@@ -422,9 +508,17 @@ export async function getBokunRaceDetail(id: string): Promise<BokunRaceDetail> {
   type BokunLocationCode = { location?: string | null } | null | undefined;
   type BokunVideo = { url?: string | null; sourceUrl?: string | null; videoUrl?: string | null; youtubeUrl?: string | null };
   type BokunKeyValue = { label?: string | null; value?: string | null };
+  type BokunMoney = { amount?: number | null; currency?: string | null } | null;
   type BokunActivityDetail = {
     id?: string | number | null;
     title?: string | null;
+    nextDefaultPrice?: number | string | null;
+    nextDefaultPriceMoney?: BokunMoney;
+    lastModified?: number | string | null;
+    durationMinutes?: number | null;
+    durationHours?: number | null;
+    durationDays?: number | null;
+    durationWeeks?: number | null;
     excerpt?: string | null;
     description?: string | null;
     publicNotes?: string | null;
@@ -461,6 +555,41 @@ export async function getBokunRaceDetail(id: string): Promise<BokunRaceDetail> {
     return undefined;
   }
 
+  /** Bokun stores duration as separate unit fields; compose the ISO 8601 form. */
+  function resolveDurationIso(): string | undefined {
+    const weeks = Number(item.durationWeeks ?? 0);
+    const days = Number(item.durationDays ?? 0) + weeks * 7;
+    const hours = Number(item.durationHours ?? 0);
+    const minutes = Number(item.durationMinutes ?? 0);
+    const date = days > 0 ? `${days}D` : "";
+    const time = [
+      hours > 0 ? `${hours}H` : "",
+      minutes > 0 ? `${minutes}M` : "",
+    ].join("");
+    if (!date && !time) return undefined;
+    return `P${date}${time ? `T${time}` : ""}`;
+  }
+
+  function resolveLastModified(): string | undefined {
+    const raw = item.lastModified;
+    if (raw == null) return undefined;
+    const d = new Date(typeof raw === "number" ? raw : String(raw));
+    return Number.isNaN(d.getTime()) ? undefined : d.toISOString();
+  }
+
+  function resolvePrice(): number | undefined {
+    const candidates = [
+      item.nextDefaultPriceMoney?.amount,
+      item.nextDefaultPrice,
+      item.price,
+    ];
+    for (const c of candidates) {
+      const n = typeof c === "number" ? c : Number(c);
+      if (Number.isFinite(n) && n > 0) return n;
+    }
+    return undefined;
+  }
+
   function resolveKnowBeforeYouGo(): string | undefined {
     // Prefer structured keyValues (Bokun "Know before you go" key-value pairs)
     if (Array.isArray(item.keyValues) && item.keyValues.length > 0) {
@@ -486,12 +615,14 @@ export async function getBokunRaceDetail(id: string): Promise<BokunRaceDetail> {
     knowBeforeYouGo: resolveKnowBeforeYouGo(),
     featuredImage: mapBokunPhoto(item.keyPhoto),
     gallery: galleryPhotos,
-    price: typeof item.price === "number" ? item.price : Number(item.price),
+    price: resolvePrice(),
     duration: item.durationText ? String(item.durationText) : undefined,
+    durationIso: resolveDurationIso(),
     location: item.locationCode?.location ? String(item.locationCode.location) : undefined,
     meetingPoint: item.startAddress ? String(item.startAddress) : item.meetingPoint ? String(item.meetingPoint) : undefined,
-    date: undefined,
+    date: extractDateFromTitle(String(item.title ?? "")),
     videoUrl: resolveVideoUrl(),
+    lastModified: resolveLastModified(),
     source: "bokun",
   };
 }

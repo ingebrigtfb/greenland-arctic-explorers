@@ -1,8 +1,17 @@
 import type { MetadataRoute } from "next";
-import { getPublishedItems, type CollectionName } from "@/lib/content";
-import { firebaseConfigured } from "@/lib/firebase";
-import { listBokunRaces, listBokunTours, listBokunActivities, listBokunLodges } from "@/lib/bokun";
+import {
+  listBokunRaces,
+  listBokunTours,
+  listBokunActivities,
+  listBokunLodges,
+  getBokunRaceDetail,
+  sectionFromProductCode,
+  type BokunRaceCard,
+} from "@/lib/bokun";
+import { reportCatalogueDrift, type Section } from "@/lib/catalogue";
 import { SITE_URL } from "@/lib/site-metadata";
+
+export const revalidate = 3600;
 
 const STATIC_ROUTES = [
   { path: "", priority: 1, changeFrequency: "weekly" as const },
@@ -15,53 +24,67 @@ const STATIC_ROUTES = [
   { path: "/contact-us", priority: 0.5, changeFrequency: "monthly" as const },
 ];
 
-const COLLECTION_ROUTES: { col: CollectionName; base: string }[] = [
-  { col: "tours", base: "/tours" },
-  { col: "races", base: "/races" },
-  { col: "lodges", base: "/arctic-lodges" },
-  { col: "activities", base: "/adventures" },
-];
+/** All catalogue items across the four collections. */
+export async function listAllCatalogueItems(): Promise<BokunRaceCard[]> {
+  const results = await Promise.allSettled([
+    listBokunTours(),
+    listBokunActivities(),
+    listBokunLodges(),
+    listBokunRaces(),
+  ]);
+  const items = results.flatMap((r) => (r.status === "fulfilled" ? r.value : []));
+
+  // Surfaces new, removed or recategorised products on every build and hourly
+  // revalidation, so the map never drifts from Bokun unnoticed.
+  reportCatalogueDrift(
+    items.map((i) => ({
+      bokunId: i.id,
+      title: i.title,
+      section: i.collection as Section,
+      codeSection: sectionFromProductCode(i.externalId),
+    }))
+  );
+
+  return items;
+}
+
+/**
+ * Bokun's search response carries no modification date, so <lastmod> comes from
+ * the detail endpoint. Those responses are already cached and fetched by the
+ * detail pages themselves, so this reuses the cache rather than adding load.
+ */
+async function lastModifiedFor(item: BokunRaceCard): Promise<Date | undefined> {
+  try {
+    const detail = await getBokunRaceDetail(item.id);
+    return detail.lastModified ? new Date(detail.lastModified) : undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const entries: MetadataRoute.Sitemap = STATIC_ROUTES.map((r) => ({
+  const items = await listAllCatalogueItems();
+  const stamps = await Promise.all(items.map(lastModifiedFor));
+
+  // Newest catalogue edit doubles as the freshness signal for the listing pages.
+  const newest = stamps.reduce<Date | undefined>(
+    (acc, d) => (d && (!acc || d > acc) ? d : acc),
+    undefined
+  );
+
+  const staticEntries: MetadataRoute.Sitemap = STATIC_ROUTES.map((r) => ({
     url: `${SITE_URL}${r.path}`,
+    lastModified: newest,
     changeFrequency: r.changeFrequency,
     priority: r.priority,
   }));
 
-  if (firebaseConfigured) {
-    const results = await Promise.allSettled(
-      COLLECTION_ROUTES.map((r) => getPublishedItems(r.col))
-    );
-    results.forEach((result, i) => {
-      if (result.status !== "fulfilled") return;
-      const { base } = COLLECTION_ROUTES[i];
-      for (const item of result.value) {
-        entries.push({
-          url: `${SITE_URL}${base}/${item.slug}`,
-          changeFrequency: "weekly",
-          priority: 0.7,
-        });
-      }
-    });
-  }
+  const detailEntries: MetadataRoute.Sitemap = items.map((item, i) => ({
+    url: `${SITE_URL}/${item.collection}/${item.slug}`,
+    lastModified: stamps[i],
+    changeFrequency: "weekly",
+    priority: 0.7,
+  }));
 
-  const bokunResults = await Promise.allSettled([
-    listBokunRaces(),
-    listBokunTours(),
-    listBokunActivities(),
-    listBokunLodges(),
-  ]);
-  for (const result of bokunResults) {
-    if (result.status !== "fulfilled") continue;
-    for (const item of result.value) {
-      entries.push({
-        url: `${SITE_URL}/${item.collection}/${item.slug}`,
-        changeFrequency: "weekly",
-        priority: 0.7,
-      });
-    }
-  }
-
-  return entries;
+  return [...staticEntries, ...detailEntries];
 }

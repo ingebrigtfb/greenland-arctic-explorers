@@ -1,24 +1,32 @@
 import type { Metadata } from "next";
 import BokunEventCards from "@/components/BokunEventCards";
 import PageHero from "@/components/PageHero";
-import { buildOpenGraph } from "@/lib/site-metadata";
+import JsonLd from "@/components/JsonLd";
+import { itemListJsonLd, breadcrumbJsonLd } from "@/lib/jsonld";
+import { buildPageMetadata } from "@/lib/site-metadata";
+import { listBokunActivities } from "@/lib/bokun";
 
-export const metadata: Metadata = {
+export const revalidate = 3600;
+
+export const metadata: Metadata = buildPageMetadata({
   title: "Adventures",
-  description: "Explore Arctic adventures from glacier hiking to Northern Lights chasing.",
-  alternates: {
-    canonical: "/adventures",
-  },
-  openGraph: buildOpenGraph({
-    title: "Adventures — Greenland Arctic Xplorers",
-    description: "Explore Arctic adventures from glacier hiking to Northern Lights chasing.",
-    url: "/adventures",
-  }),
-};
+  description:
+    "Explore Arctic adventures from glacier hiking to Northern Lights chasing.",
+  path: "/adventures",
+});
 
-export default function ActivitiesPage() {
+export default async function ActivitiesPage() {
+  const items = await listBokunActivities();
+
   return (
     <section className="bg-frost-light pb-24">
+      <JsonLd data={itemListJsonLd(items, "/adventures", "Adventures")} />
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Adventures", path: "/adventures" },
+        ])}
+      />
       <PageHero
         image="/races1.JPEG"
         alt="Kayak and boat beside an iceberg in a Greenland fjord"
@@ -36,7 +44,7 @@ export default function ActivitiesPage() {
           tag: "Browse · All experiences",
           title: "Pick your Arctic moment",
         }}
-        fetchUrl="/api/bokun/adventures"
+        items={items}
         linkBase="/adventures"
         emptyTitle="No upcoming adventures"
         emptyDescription="Check back soon for new adventure dates."

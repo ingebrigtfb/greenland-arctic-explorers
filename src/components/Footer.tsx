@@ -102,6 +102,14 @@ export default function Footer() {
             </a>
             .
           </p>
+          <p className="font-body text-xs text-mist/60">
+            <a
+              href="/llms.txt"
+              className="transition-colors hover:text-ice-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glacier rounded"
+            >
+              llms.txt
+            </a>
+          </p>
           <div className="flex items-center gap-5">
             {/* Social icons */}
             <a

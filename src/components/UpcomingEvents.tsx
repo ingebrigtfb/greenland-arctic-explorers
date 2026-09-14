@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, MapPin, Clock, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import type { BokunRaceCard } from "@/lib/bokun";
+import type { BokunRaceCard, HighlightMode } from "@/lib/bokun";
 
 function formatDate(dateStr?: string) {
   if (!dateStr) return null;
@@ -20,21 +20,33 @@ function formatPrice(price?: number) {
 
 const PAGE_SIZE = 3;
 
-export default function UpcomingEvents() {
+const COPY: Record<HighlightMode, { eyebrow: string; heading: string; label: string }> = {
+  upcoming: {
+    eyebrow: "Expeditions, Tours & Highlights",
+    heading: "Upcoming Expeditions",
+    label: "Upcoming Expeditions",
+  },
+  // Shown when nothing on the calendar has a future date — these are undated
+  // experiences, so the section must not call them "upcoming".
+  featured: {
+    eyebrow: "Tours & Adventures",
+    heading: "Experiences to Book Year-Round",
+    label: "Featured Experiences",
+  },
+};
+
+export default function UpcomingEvents({
+  events,
+  mode = "upcoming",
+}: {
+  events: BokunRaceCard[];
+  mode?: HighlightMode;
+}) {
+  const copy = COPY[mode];
   const sectionRef = useRef<HTMLElement>(null);
   const snowRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
-  const [events, setEvents] = useState<BokunRaceCard[]>([]);
-  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
-
-  useEffect(() => {
-    fetch("/api/bokun/upcoming")
-      .then((r) => r.json())
-      .then((data) => setEvents(data?.items ?? []))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -74,7 +86,7 @@ export default function UpcomingEvents() {
     <section
       id="events"
       ref={sectionRef}
-      aria-label="Upcoming Expeditions"
+      aria-label={copy.label}
       className="relative overflow-hidden bg-frost-light py-20 lg:py-28"
     >
       <style>{`
@@ -113,10 +125,10 @@ export default function UpcomingEvents() {
         >
           <div>
             <p className="mb-2 font-heading text-xs font-600 uppercase tracking-[0.15em] text-polar-teal">
-              Expeditions, Tours & Highlights
+              {copy.eyebrow}
             </p>
             <h2 className="font-display text-[clamp(1.75rem,3.5vw,2.5rem)] font-700 leading-tight text-arctic-navy">
-              Upcoming Expeditions
+              {copy.heading}
             </h2>
           </div>
           {totalPages > 1 && (
@@ -144,19 +156,8 @@ export default function UpcomingEvents() {
           )}
         </div>
 
-        {/* Loading skeleton */}
-        {loading && (
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.25fr_1fr]">
-            <div className="h-[500px] animate-pulse rounded-xl bg-white" />
-            <div className="flex flex-col gap-6">
-              <div className="h-[240px] animate-pulse rounded-xl bg-white" />
-              <div className="h-[240px] animate-pulse rounded-xl bg-white" />
-            </div>
-          </div>
-        )}
-
         {/* Asymmetric grid */}
-        {!loading && featured && (
+        {featured && (
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.25fr_1fr]">
             {/* Featured card */}
             <Link
@@ -310,9 +311,9 @@ export default function UpcomingEvents() {
           </div>
         )}
 
-        {!loading && !featured && (
+        {!featured && (
           <p className="py-12 text-center font-body text-stone">
-            No upcoming expeditions right now. Check back soon.
+            Nothing to show right now. Check back soon.
           </p>
         )}
       </div>

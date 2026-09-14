@@ -1,20 +1,13 @@
 import type { Metadata } from "next";
 import TourMap from "@/components/TourMap";
-import { buildOpenGraph } from "@/lib/site-metadata";
+import { buildPageMetadata } from "@/lib/site-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Tour Map",
   description:
     "Interactive map of all expedition routes and destinations across Greenland.",
-  alternates: {
-    canonical: "/tour-map",
-  },
-  openGraph: buildOpenGraph({
-    title: "Tour Map — Greenland Arctic Xplorers",
-    description: "Interactive map of all expedition routes and destinations across Greenland.",
-    url: "/tour-map",
-  }),
-};
+  path: "/tour-map",
+});
 
 export default function TourMapPage() {
   return <TourMap />;

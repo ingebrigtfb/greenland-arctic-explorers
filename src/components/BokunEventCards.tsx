@@ -1,6 +1,3 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import BokunEventCard, { type BokunEventCardData, type CardTone } from "@/components/BokunEventCard";
 
 type BokunListItem = Omit<BokunEventCardData, "href"> & { slug: string };
@@ -19,7 +16,7 @@ const toneDot: Record<CardTone, string> = {
 };
 
 export default function BokunEventCards({
-  fetchUrl,
+  items,
   linkBase,
   emptyTitle,
   emptyDescription,
@@ -27,7 +24,7 @@ export default function BokunEventCards({
   viewLabel = "View details",
   intro,
 }: {
-  fetchUrl: string;
+  items: BokunListItem[];
   linkBase: string;
   emptyTitle?: string;
   emptyDescription?: string;
@@ -35,17 +32,6 @@ export default function BokunEventCards({
   viewLabel?: string;
   intro?: SectionIntro;
 }) {
-  const [items, setItems] = useState<BokunListItem[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch(fetchUrl)
-      .then((r) => r.json())
-      .then((data) => setItems(data?.items ?? []))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [fetchUrl]);
-
   return (
     // Negative top margin lets cards tuck into the hero above.
     <div className="relative z-30 bg-frost-light pt-14 pb-6">
@@ -69,13 +55,7 @@ export default function BokunEventCards({
       )}
 
       <div className="mx-auto max-w-[1280px] px-6 lg:px-12">
-        {loading ? (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-[460px] animate-pulse rounded-2xl bg-white/80" />
-            ))}
-          </div>
-        ) : items.length === 0 ? (
+        {items.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-mist bg-white p-16 text-center">
             <p className="mb-2 font-heading text-lg font-600 text-arctic-navy">
               {emptyTitle ?? "No upcoming events"}

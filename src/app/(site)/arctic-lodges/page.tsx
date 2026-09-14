@@ -1,24 +1,32 @@
 import type { Metadata } from "next";
 import BokunEventCards from "@/components/BokunEventCards";
 import PageHero from "@/components/PageHero";
-import { buildOpenGraph } from "@/lib/site-metadata";
+import JsonLd from "@/components/JsonLd";
+import { itemListJsonLd, breadcrumbJsonLd } from "@/lib/jsonld";
+import { buildPageMetadata } from "@/lib/site-metadata";
+import { listBokunLodges } from "@/lib/bokun";
 
-export const metadata: Metadata = {
+export const revalidate = 3600;
+
+export const metadata: Metadata = buildPageMetadata({
   title: "Arctic Lodges",
-  description: "Stay in our remote Arctic lodges surrounded by pristine wilderness.",
-  alternates: {
-    canonical: "/arctic-lodges",
-  },
-  openGraph: buildOpenGraph({
-    title: "Arctic Lodges — Greenland Arctic Xplorers",
-    description: "Stay in our remote Arctic lodges surrounded by pristine wilderness.",
-    url: "/arctic-lodges",
-  }),
-};
+  description:
+    "Stay in our remote Arctic lodges surrounded by pristine wilderness.",
+  path: "/arctic-lodges",
+});
 
-export default function ArcticLodgesPage() {
+export default async function ArcticLodgesPage() {
+  const items = await listBokunLodges();
+
   return (
     <section className="bg-frost-light pb-24">
+      <JsonLd data={itemListJsonLd(items, "/arctic-lodges", "Arctic Lodges")} />
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Arctic Lodges", path: "/arctic-lodges" },
+        ])}
+      />
       <PageHero
         image="/races2.JPEG"
         alt="Colorful Greenlandic cabins at the edge of a fjord"
@@ -36,7 +44,7 @@ export default function ArcticLodgesPage() {
           tag: "Stay · All lodges",
           title: "Find your Arctic base camp",
         }}
-        fetchUrl="/api/bokun/lodges"
+        items={items}
         linkBase="/arctic-lodges"
         emptyTitle="No upcoming lodges"
         emptyDescription="Check back soon for new lodge availability."
