@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import ContentDetailPage from "@/components/ContentDetailPage";
 import { getDetailMeta, getDetailItem, listCollectionSlugs, extractBokunId } from "@/lib/seo";
 import { buildOpenGraph } from "@/lib/site-metadata";
+import { touristTripJsonLd, breadcrumbJsonLd } from "@/lib/jsonld";
+import JsonLd from "@/components/JsonLd";
 
 type Params = { slug: string };
 
@@ -44,13 +46,25 @@ export default async function TourDetailPage({ params }: { params: Promise<Param
   const item = await getDetailItem(slug);
   if (!item) notFound();
 
+  const path = `/tours/${slug}`;
+  const crumbs = [
+    { name: "Home", path: "/" },
+    { name: "Tours", path: "/tours" },
+    { name: item.title, path },
+  ];
+
   return (
-    <ContentDetailPage
-      item={item}
-      bokunId={extractBokunId(slug)}
-      label="Tour"
-      labelPlural="Tours"
-      backHref="/tours"
-    />
+    <>
+      <JsonLd data={touristTripJsonLd(item, path)} />
+      <JsonLd data={breadcrumbJsonLd(crumbs)} />
+      <ContentDetailPage
+        crumbs={crumbs}
+        item={item}
+        bokunId={extractBokunId(slug)}
+        label="Tour"
+        labelPlural="Tours"
+        backHref="/tours"
+      />
+    </>
   );
 }

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import BokunEventCards from "@/components/BokunEventCards";
 import PageHero from "@/components/PageHero";
+import JsonLd from "@/components/JsonLd";
+import { itemListJsonLd, breadcrumbJsonLd } from "@/lib/jsonld";
 import { buildOpenGraph } from "@/lib/site-metadata";
 import { listBokunTours } from "@/lib/bokun";
 
@@ -24,6 +26,13 @@ export default async function ToursPage() {
 
   return (
     <section className="bg-frost-light pb-24">
+      <JsonLd data={itemListJsonLd(items, "/tours", "Tours")} />
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Tours", path: "/tours" },
+        ])}
+      />
       <PageHero
         image="/CTAImageSection.JPEG"
         alt="Aerial view of a boat moored beside an iceberg in Greenland"

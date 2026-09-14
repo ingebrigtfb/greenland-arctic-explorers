@@ -41,6 +41,8 @@ export type BokunRaceDetail = {
   gallery?: BokunImage[];
   price?: number;
   duration?: string;
+  /** ISO 8601 duration (e.g. "PT6H", "P3D") for schema.org Event.duration. */
+  durationIso?: string;
   location?: string;
   meetingPoint?: string;
   date?: string;
@@ -496,6 +498,10 @@ export async function getBokunRaceDetail(id: string): Promise<BokunRaceDetail> {
     title?: string | null;
     nextDefaultPrice?: number | string | null;
     nextDefaultPriceMoney?: BokunMoney;
+    durationMinutes?: number | null;
+    durationHours?: number | null;
+    durationDays?: number | null;
+    durationWeeks?: number | null;
     excerpt?: string | null;
     description?: string | null;
     publicNotes?: string | null;
@@ -530,6 +536,21 @@ export async function getBokunRaceDetail(id: string): Promise<BokunRaceDetail> {
       return v.sourceUrl ? String(v.sourceUrl) : v.url ? String(v.url) : v.videoUrl ? String(v.videoUrl) : v.youtubeUrl ? String(v.youtubeUrl) : undefined;
     }
     return undefined;
+  }
+
+  /** Bokun stores duration as separate unit fields; compose the ISO 8601 form. */
+  function resolveDurationIso(): string | undefined {
+    const weeks = Number(item.durationWeeks ?? 0);
+    const days = Number(item.durationDays ?? 0) + weeks * 7;
+    const hours = Number(item.durationHours ?? 0);
+    const minutes = Number(item.durationMinutes ?? 0);
+    const date = days > 0 ? `${days}D` : "";
+    const time = [
+      hours > 0 ? `${hours}H` : "",
+      minutes > 0 ? `${minutes}M` : "",
+    ].join("");
+    if (!date && !time) return undefined;
+    return `P${date}${time ? `T${time}` : ""}`;
   }
 
   function resolvePrice(): number | undefined {
@@ -572,6 +593,7 @@ export async function getBokunRaceDetail(id: string): Promise<BokunRaceDetail> {
     gallery: galleryPhotos,
     price: resolvePrice(),
     duration: item.durationText ? String(item.durationText) : undefined,
+    durationIso: resolveDurationIso(),
     location: item.locationCode?.location ? String(item.locationCode.location) : undefined,
     meetingPoint: item.startAddress ? String(item.startAddress) : item.meetingPoint ? String(item.meetingPoint) : undefined,
     date: extractDateFromTitle(String(item.title ?? "")),

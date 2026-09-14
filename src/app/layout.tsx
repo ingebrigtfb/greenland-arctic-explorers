@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Montserrat, Inter, Sora } from "next/font/google";
 import Providers from "@/lib/Providers";
-import { DEFAULT_OG_IMAGE, SITE_URL, SITE_NAME, SITE_DESCRIPTION, SITE_PHONE, SITE_EMAIL, SITE_SOCIALS } from "@/lib/site-metadata";
+import { DEFAULT_OG_IMAGE, SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/site-metadata";
+import { organizationJsonLd } from "@/lib/jsonld";
+import JsonLd from "@/components/JsonLd";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -32,15 +34,6 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
-  keywords: [
-    "Greenland tours",
-    "Arctic expeditions",
-    "Greenland adventures",
-    "Northern Lights Greenland",
-    "Greenland races",
-    "Arctic lodges",
-    "Nuuk tours",
-  ],
   authors: [{ name: SITE_NAME }],
   alternates: {
     canonical: "/",
@@ -74,28 +67,6 @@ export const metadata: Metadata = {
   },
 };
 
-const organizationJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "TravelAgency",
-  name: SITE_NAME,
-  url: SITE_URL,
-  logo: `${SITE_URL}/gax-logo.png`,
-  image: `${SITE_URL}/hero1.JPEG`,
-  email: SITE_EMAIL,
-  telephone: SITE_PHONE,
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: "3905 Qinngorput",
-    addressLocality: "Nuuk",
-    addressCountry: "GL",
-  },
-  sameAs: SITE_SOCIALS,
-  areaServed: {
-    "@type": "Country",
-    name: "Greenland",
-  },
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -104,10 +75,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${montserrat.variable} ${sora.variable} ${inter.variable} antialiased`}>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
-        />
+        <JsonLd data={organizationJsonLd()} />
         <Providers>{children}</Providers>
       </body>
     </html>

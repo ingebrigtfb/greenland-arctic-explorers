@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import Image from "next/image";
 import Link from "next/link";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import type { BreadcrumbCrumb } from "@/lib/jsonld";
 import {
   MapPin, ArrowLeft, ChevronLeft, ChevronRight, X,
 } from "lucide-react";
@@ -37,7 +39,7 @@ function getEmbedUrl(url?: string): string | null {
   return null;
 }
 
-export default function LodgeDetailPage({ lodge }: { lodge: Lodge }) {
+export default function LodgeDetailPage({ lodge, crumbs }: { lodge: Lodge; crumbs: BreadcrumbCrumb[] }) {
   const [lightbox, setLightbox] = useState<number | null>(null);
 
   useEffect(() => {
@@ -74,6 +76,10 @@ export default function LodgeDetailPage({ lodge }: { lodge: Lodge }) {
         </div>
 
         <div className="mx-auto max-w-[1280px] px-6 pb-32 pt-8 lg:px-12 lg:pb-16">
+          <div className="mb-5">
+            <Breadcrumbs crumbs={crumbs} />
+          </div>
+
           {/* ─── TITLE ROW ─── */}
           <div className="mb-6">
             <div className="mb-1.5 inline-flex items-center gap-2 font-heading text-[11px] font-700 uppercase tracking-[0.2em] text-polar-teal">

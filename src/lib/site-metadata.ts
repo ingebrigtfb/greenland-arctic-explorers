@@ -5,6 +5,17 @@ export const SITE_NAME = "Greenland Arctic Xplorers";
 export const SITE_DESCRIPTION =
   "Experience the pristine Arctic wilderness of Greenland. Glacier expeditions, Northern Lights chases, fjord kayaking, and unforgettable adventures in the world's last frontier.";
 export const SITE_PHONE = "+299260720";
+/**
+ * Single source of truth for the postal address (NAP).
+ * Matches the footer and Firestore `content/contact`. External directory
+ * listings disagree — see MISSING-DATA.md.
+ */
+export const SITE_ADDRESS = {
+  streetAddress: "Qinngorput",
+  postalCode: "3905",
+  addressLocality: "Nuuk",
+  addressCountry: "GL",
+} as const;
 export const SITE_EMAIL = "info@gax.gl";
 export const SITE_SOCIALS = [
   "https://www.facebook.com/greenlandarcticxplorers",

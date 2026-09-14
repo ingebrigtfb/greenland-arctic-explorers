@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import LodgeDetailPage from "@/components/LodgeDetailPage";
 import { getDetailMeta, getDetailItem, listCollectionSlugs } from "@/lib/seo";
 import { buildOpenGraph } from "@/lib/site-metadata";
+import { lodgingJsonLd, breadcrumbJsonLd } from "@/lib/jsonld";
+import JsonLd from "@/components/JsonLd";
 
 type Params = { slug: string };
 
@@ -44,5 +46,18 @@ export default async function LodgePage({ params }: { params: Promise<Params> })
   const lodge = await getDetailItem(slug);
   if (!lodge) notFound();
 
-  return <LodgeDetailPage lodge={lodge} />;
+  const path = `/arctic-lodges/${slug}`;
+  const crumbs = [
+    { name: "Home", path: "/" },
+    { name: "Arctic Lodges", path: "/arctic-lodges" },
+    { name: lodge.title, path },
+  ];
+
+  return (
+    <>
+      <JsonLd data={lodgingJsonLd(lodge, path)} />
+      <JsonLd data={breadcrumbJsonLd(crumbs)} />
+      <LodgeDetailPage lodge={lodge} crumbs={crumbs} />
+    </>
+  );
 }

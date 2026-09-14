@@ -4,6 +4,8 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import Script from "next/script";
 import Image from "next/image";
 import Link from "next/link";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import type { BreadcrumbCrumb } from "@/lib/jsonld";
 import { MapPin, Clock, ArrowLeft, ArrowRight, Play, ChevronLeft, ChevronRight, X, FileText } from "lucide-react";
 
 const BOKUN_CHANNEL_UUID = "159bdf9f-bfe0-451a-8901-42c0293704e6";
@@ -93,6 +95,7 @@ interface ContentDetailPageProps {
   /** Fetched on the server so the full record ships in the initial HTML. */
   item: ItemDetail;
   bokunId: string | null;
+  crumbs: BreadcrumbCrumb[];
   label: string;
   labelPlural: string;
   backHref: string;
@@ -101,6 +104,7 @@ interface ContentDetailPageProps {
 export default function ContentDetailPage({
   item,
   bokunId,
+  crumbs,
   label,
   labelPlural,
   backHref,
@@ -200,13 +204,7 @@ export default function ContentDetailPage({
         {/* Back button — pinned just below the fixed header */}
         <div className="absolute left-0 right-0 z-20 top-[80px] lg:top-[88px]">
           <div className="mx-auto max-w-[1280px] px-6 lg:px-12">
-            <Link
-              href={backHref}
-              className="inline-flex items-center gap-1.5 font-heading text-xs font-600 uppercase tracking-wider text-frost/80 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white rounded"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              All {labelPlural}
-            </Link>
+            <Breadcrumbs crumbs={crumbs} tone="dark" />
           </div>
         </div>
 
