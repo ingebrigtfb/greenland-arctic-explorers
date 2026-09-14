@@ -3,23 +3,17 @@ import BokunEventCards from "@/components/BokunEventCards";
 import PageHero from "@/components/PageHero";
 import JsonLd from "@/components/JsonLd";
 import { itemListJsonLd, breadcrumbJsonLd } from "@/lib/jsonld";
-import { buildOpenGraph } from "@/lib/site-metadata";
+import { buildPageMetadata } from "@/lib/site-metadata";
 import { listBokunActivities } from "@/lib/bokun";
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Adventures",
-  description: "Explore Arctic adventures from glacier hiking to Northern Lights chasing.",
-  alternates: {
-    canonical: "/adventures",
-  },
-  openGraph: buildOpenGraph({
-    title: "Adventures — Greenland Arctic Xplorers",
-    description: "Explore Arctic adventures from glacier hiking to Northern Lights chasing.",
-    url: "/adventures",
-  }),
-};
+  description:
+    "Explore Arctic adventures from glacier hiking to Northern Lights chasing.",
+  path: "/adventures",
+});
 
 export default async function ActivitiesPage() {
   const items = await listBokunActivities();

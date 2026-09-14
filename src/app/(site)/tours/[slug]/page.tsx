@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ContentDetailPage from "@/components/ContentDetailPage";
 import { getDetailMeta, getDetailItem, listCollectionSlugs, extractBokunId } from "@/lib/seo";
-import { buildOpenGraph } from "@/lib/site-metadata";
+import { buildPageMetadata } from "@/lib/site-metadata";
 import { touristTripJsonLd, breadcrumbJsonLd } from "@/lib/jsonld";
 import JsonLd from "@/components/JsonLd";
 
@@ -26,19 +26,12 @@ export async function generateMetadata({
     return { title: "Tour Not Found" };
   }
 
-  return {
+  return buildPageMetadata({
     title: meta.title,
-    description: meta.description,
-    alternates: {
-      canonical: `/tours/${slug}`,
-    },
-    openGraph: buildOpenGraph({
-      title: `${meta.title} — Greenland Arctic Xplorers`,
-      description: meta.description ?? "",
-      url: `/tours/${slug}`,
-      imageUrl: meta.imageUrl,
-    }),
-  };
+    description: meta.description ?? "",
+    path: `/tours/${slug}`,
+    imageUrl: meta.imageUrl,
+  });
 }
 
 export default async function TourDetailPage({ params }: { params: Promise<Params> }) {

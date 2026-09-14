@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import LodgeDetailPage from "@/components/LodgeDetailPage";
 import { getDetailMeta, getDetailItem, listCollectionSlugs } from "@/lib/seo";
-import { buildOpenGraph } from "@/lib/site-metadata";
+import { buildPageMetadata } from "@/lib/site-metadata";
 import { lodgingJsonLd, breadcrumbJsonLd } from "@/lib/jsonld";
 import JsonLd from "@/components/JsonLd";
 
@@ -26,19 +26,12 @@ export async function generateMetadata({
     return { title: "Lodge Not Found" };
   }
 
-  return {
+  return buildPageMetadata({
     title: meta.title,
-    description: meta.description,
-    alternates: {
-      canonical: `/arctic-lodges/${slug}`,
-    },
-    openGraph: buildOpenGraph({
-      title: `${meta.title} — Greenland Arctic Xplorers`,
-      description: meta.description ?? "",
-      url: `/arctic-lodges/${slug}`,
-      imageUrl: meta.imageUrl,
-    }),
-  };
+    description: meta.description ?? "",
+    path: `/arctic-lodges/${slug}`,
+    imageUrl: meta.imageUrl,
+  });
 }
 
 export default async function LodgePage({ params }: { params: Promise<Params> }) {

@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
 
+// The page itself is a client component and cannot export metadata, so the
+// noindex lives here. Post-checkout receipts have no search value and their
+// URLs must never be indexed.
 export const metadata: Metadata = {
-  title: "Booking Confirmation",
-  robots: {
-    index: false,
-    follow: false,
-  },
+  title: "Booking Confirmed",
+  robots: { index: false, follow: false },
 };
 
-export default function ConfirmationLayout({ children }: { children: React.ReactNode }) {
+export default function BookingConfirmationLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return children;
 }

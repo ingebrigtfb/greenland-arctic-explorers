@@ -3,23 +3,17 @@ import BokunEventCards from "@/components/BokunEventCards";
 import PageHero from "@/components/PageHero";
 import JsonLd from "@/components/JsonLd";
 import { itemListJsonLd, breadcrumbJsonLd } from "@/lib/jsonld";
-import { buildOpenGraph } from "@/lib/site-metadata";
+import { buildPageMetadata } from "@/lib/site-metadata";
 import { listBokunTours } from "@/lib/bokun";
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Tours",
-  description: "Explore our signature Arctic expedition tours across Greenland.",
-  alternates: {
-    canonical: "/tours",
-  },
-  openGraph: buildOpenGraph({
-    title: "Tours — Greenland Arctic Xplorers",
-    description: "Explore our signature Arctic expedition tours across Greenland.",
-    url: "/tours",
-  }),
-};
+  description:
+    "Explore our signature Arctic expedition tours across Greenland.",
+  path: "/tours",
+});
 
 export default async function ToursPage() {
   const items = await listBokunTours();

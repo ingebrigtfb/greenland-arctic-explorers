@@ -47,6 +47,8 @@ export type BokunRaceDetail = {
   meetingPoint?: string;
   date?: string;
   videoUrl?: string;
+  /** ISO timestamp of the last edit in Bokun, for sitemap <lastmod>. */
+  lastModified?: string;
   source: "bokun";
 };
 
@@ -498,6 +500,7 @@ export async function getBokunRaceDetail(id: string): Promise<BokunRaceDetail> {
     title?: string | null;
     nextDefaultPrice?: number | string | null;
     nextDefaultPriceMoney?: BokunMoney;
+    lastModified?: number | string | null;
     durationMinutes?: number | null;
     durationHours?: number | null;
     durationDays?: number | null;
@@ -553,6 +556,13 @@ export async function getBokunRaceDetail(id: string): Promise<BokunRaceDetail> {
     return `P${date}${time ? `T${time}` : ""}`;
   }
 
+  function resolveLastModified(): string | undefined {
+    const raw = item.lastModified;
+    if (raw == null) return undefined;
+    const d = new Date(typeof raw === "number" ? raw : String(raw));
+    return Number.isNaN(d.getTime()) ? undefined : d.toISOString();
+  }
+
   function resolvePrice(): number | undefined {
     const candidates = [
       item.nextDefaultPriceMoney?.amount,
@@ -598,6 +608,7 @@ export async function getBokunRaceDetail(id: string): Promise<BokunRaceDetail> {
     meetingPoint: item.startAddress ? String(item.startAddress) : item.meetingPoint ? String(item.meetingPoint) : undefined,
     date: extractDateFromTitle(String(item.title ?? "")),
     videoUrl: resolveVideoUrl(),
+    lastModified: resolveLastModified(),
     source: "bokun",
   };
 }

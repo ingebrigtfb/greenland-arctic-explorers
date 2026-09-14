@@ -3,23 +3,17 @@ import BokunEventCards from "@/components/BokunEventCards";
 import PageHero from "@/components/PageHero";
 import JsonLd from "@/components/JsonLd";
 import { itemListJsonLd, breadcrumbJsonLd } from "@/lib/jsonld";
-import { buildOpenGraph } from "@/lib/site-metadata";
+import { buildPageMetadata } from "@/lib/site-metadata";
 import { listBokunLodges } from "@/lib/bokun";
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Arctic Lodges",
-  description: "Stay in our remote Arctic lodges surrounded by pristine wilderness.",
-  alternates: {
-    canonical: "/arctic-lodges",
-  },
-  openGraph: buildOpenGraph({
-    title: "Arctic Lodges — Greenland Arctic Xplorers",
-    description: "Stay in our remote Arctic lodges surrounded by pristine wilderness.",
-    url: "/arctic-lodges",
-  }),
-};
+  description:
+    "Stay in our remote Arctic lodges surrounded by pristine wilderness.",
+  path: "/arctic-lodges",
+});
 
 export default async function ArcticLodgesPage() {
   const items = await listBokunLodges();
