@@ -9,6 +9,7 @@ import {
   type BokunRaceDetail,
 } from "./bokun";
 import type { CollectionName } from "./content";
+import { bokunIdFromLegacySlug, entryBySlug } from "./catalogue";
 
 export type DetailMeta = {
   title: string;
@@ -16,10 +17,12 @@ export type DetailMeta = {
   imageUrl?: string;
 };
 
-/** Detail slugs carry the Bokun activity id as a trailing `-<digits>` segment. */
+/**
+ * Bokun id for a detail slug: from the curated map for canonical slugs, or from
+ * the trailing `-<digits>` segment of a legacy one.
+ */
 export function extractBokunId(slug: string): string | null {
-  const m = slug.match(/-(\d{5,})$/);
-  return m ? m[1] : null;
+  return entryBySlug(slug)?.bokunId ?? bokunIdFromLegacySlug(slug);
 }
 
 const COLLECTION_LISTERS: Record<CollectionName, () => Promise<BokunRaceCard[]>> = {

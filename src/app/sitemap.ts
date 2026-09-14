@@ -5,8 +5,10 @@ import {
   listBokunActivities,
   listBokunLodges,
   getBokunRaceDetail,
+  sectionFromProductCode,
   type BokunRaceCard,
 } from "@/lib/bokun";
+import { reportCatalogueDrift, type Section } from "@/lib/catalogue";
 import { SITE_URL } from "@/lib/site-metadata";
 
 export const revalidate = 3600;
@@ -30,7 +32,20 @@ export async function listAllCatalogueItems(): Promise<BokunRaceCard[]> {
     listBokunLodges(),
     listBokunRaces(),
   ]);
-  return results.flatMap((r) => (r.status === "fulfilled" ? r.value : []));
+  const items = results.flatMap((r) => (r.status === "fulfilled" ? r.value : []));
+
+  // Surfaces new, removed or recategorised products on every build and hourly
+  // revalidation, so the map never drifts from Bokun unnoticed.
+  reportCatalogueDrift(
+    items.map((i) => ({
+      bokunId: i.id,
+      title: i.title,
+      section: i.collection as Section,
+      codeSection: sectionFromProductCode(i.externalId),
+    }))
+  );
+
+  return items;
 }
 
 /**

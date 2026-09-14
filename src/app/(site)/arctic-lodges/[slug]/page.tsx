@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import LodgeDetailPage from "@/components/LodgeDetailPage";
 import { getDetailMeta, getDetailItem, listCollectionSlugs } from "@/lib/seo";
 import { buildPageMetadata } from "@/lib/site-metadata";
+import { resolveDetailSlug } from "@/lib/catalogue";
 import { lodgingJsonLd, breadcrumbJsonLd } from "@/lib/jsonld";
 import JsonLd from "@/components/JsonLd";
 
@@ -36,6 +37,13 @@ export async function generateMetadata({
 
 export default async function LodgePage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
+
+  // Legacy id-bearing URLs, and canonical slugs hit under the wrong section,
+  // are 308'd to the canonical path rather than served at two addresses.
+  const resolved = resolveDetailSlug("arctic-lodges", slug);
+  if (resolved.kind === "notFound") notFound();
+  if (resolved.kind === "redirect") permanentRedirect(resolved.to);
+
   const lodge = await getDetailItem(slug);
   if (!lodge) notFound();
 

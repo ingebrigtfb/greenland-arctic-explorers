@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { extractDateFromTitle } from "./titleDate";
+import { entryByBokunId, slugFor, type Section } from "./catalogue";
 
 function slugify(text: string): string {
   return text
@@ -27,6 +28,8 @@ export type BokunRaceCard = {
   location?: string;
   date?: string;
   collection: string;
+  /** Raw Bokun product code, for catalogue drift reporting. */
+  externalId?: string;
   source: "bokun";
 };
 
@@ -146,19 +149,19 @@ function mapBokunPhoto(photo: unknown): BokunImage | undefined {
 }
 
 export async function listBokunRaces(): Promise<BokunRaceCard[]> {
-  return listBokunByProductCode("race", "races");
+  return listBokunBySection("races");
 }
 
 export async function listBokunTours(): Promise<BokunRaceCard[]> {
-  return listBokunByProductCode("tour", "tours");
+  return listBokunBySection("tours");
 }
 
 export async function listBokunActivities(): Promise<BokunRaceCard[]> {
-  return listBokunByProductCode("adventures", "adventures");
+  return listBokunBySection("adventures");
 }
 
 export async function listBokunLodges(): Promise<BokunRaceCard[]> {
-  return listBokunByProductCode("lodge", "arctic-lodges");
+  return listBokunBySection("arctic-lodges");
 }
 
 /** Every dated product across all four collections, soonest first. */
@@ -220,15 +223,31 @@ export async function listBokunHighlights(count = 6, now = new Date()): Promise<
   return { items: rotateDaily(pool, count, now), mode: "featured" };
 }
 
-function matchesProductCode(externalId: unknown, productCode: string) {
-  const code = productCode.trim().toLowerCase();
-  if (!code) return false;
-  const v = externalId == null ? "" : String(externalId).trim().toLowerCase();
-  // Matches case-insensitively (e.g. "Tour" / "tour") and supports "tour-123" style codes.
-  return v === code || v.includes(`${code}-`) || v.includes(code);
+/**
+ * Section for a product.
+ *
+ * The curated map wins, so a URL cannot move because someone edited a product
+ * code in Bokun — that field is shared with another application and is free
+ * text. Products not yet in the map fall back to matching the code, so a newly
+ * added product still reaches the right listing on its own.
+ */
+function sectionForProduct(id: unknown, externalId: unknown): Section | null {
+  const mapped = id == null ? undefined : entryByBokunId(String(id));
+  if (mapped) return mapped.section;
+  return sectionFromProductCode(externalId);
 }
 
-async function listBokunByProductCode(productCode: string, collection: string): Promise<BokunRaceCard[]> {
+export function sectionFromProductCode(externalId: unknown): Section | null {
+  const v = externalId == null ? "" : String(externalId).trim().toLowerCase();
+  if (!v) return null;
+  if (v.includes("race")) return "races";
+  if (v.includes("lodge") || v.includes("cabin")) return "arctic-lodges";
+  if (v.includes("adventure") || v.includes("activity") || v.includes("activities")) return "adventures";
+  if (v.includes("tour")) return "tours";
+  return null;
+}
+
+async function listBokunBySection(section: Section): Promise<BokunRaceCard[]> {
   const lang = process.env.BOKUN_RACE_LANG ?? "EN";
   const currency = process.env.BOKUN_RACE_CURRENCY ?? "DKK";
   const pageSize = Number(process.env.BOKUN_RACE_PAGE_SIZE ?? process.env.BOKUN_LIST_PAGE_SIZE ?? "100");
@@ -285,7 +304,7 @@ async function listBokunByProductCode(productCode: string, collection: string): 
   }
 
   const filtered = items.filter(
-    (item) => item.id != null && matchesProductCode(item.externalId, productCode)
+    (item) => item.id != null && sectionForProduct(item.id, item.externalId) === section
   );
 
   filtered.sort((a, b) => {
@@ -301,10 +320,10 @@ async function listBokunByProductCode(productCode: string, collection: string): 
   return filtered.map((item) => {
     const priceNum = typeof item.price === "number" ? item.price : Number(item.price);
     const id = String(item.id);
-    const titleSlug = slugify(String(item.title ?? "untitled"));
+    const legacySlug = `${slugify(String(item.title ?? "untitled"))}-${id}`;
     return {
       id,
-      slug: `${titleSlug}-${id}`,
+      slug: slugFor(id, legacySlug),
       title: String(item.title ?? "Untitled"),
       shortDescription: item.excerpt ? String(item.excerpt) : undefined,
       featuredImage: mapBokunPhoto(item.keyPhoto),
@@ -312,21 +331,16 @@ async function listBokunByProductCode(productCode: string, collection: string): 
       duration: item.durationText ? String(item.durationText) : undefined,
       location: item.locationCode?.location ? String(item.locationCode.location) : undefined,
       date: pickDate(item),
-      collection,
+      collection: section,
+      externalId: item.externalId ?? undefined,
       source: "bokun",
     };
   });
 }
 
-function hrefForExternalId(externalId?: string | null, slug?: string) {
-  const code = (externalId ?? "").trim().toLowerCase();
-  const s = slug ?? "";
-  if (code.includes("tour")) return `/tours/${s}`;
-  if (code.includes("race")) return `/races/${s}`;
-  if (code.includes("adventures") || code.includes("adventure") || code.includes("activities") || code.includes("activity")) return `/adventures/${s}`;
-  if (code.includes("lodge") || code.includes("cabin")) return `/arctic-lodges/${s}`;
-  // Fallback: treat as an adventure
-  return `/adventures/${s}`;
+function hrefForProduct(id: string, externalId: string | null | undefined, slug: string) {
+  const section = sectionForProduct(id, externalId) ?? "adventures";
+  return `/${section}/${slug}`;
 }
 
 export async function listBokunMapPoints(): Promise<BokunMapPoint[]> {
@@ -439,14 +453,14 @@ export async function listBokunMapPoints(): Promise<BokunMapPoint[]> {
     const lng = Number.isFinite(spLng) ? spLng : (typeof fallbackCenter?.lng === "number" ? fallbackCenter.lng : NaN);
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
 
-    const slug = `${slugify(title)}-${id}`;
+    const slug = slugFor(id, `${slugify(title)}-${id}`);
     const priceNum = typeof item.price === "number" ? item.price : Number(item.price);
     points.push({
       id,
       title,
       externalId: item.externalId ?? undefined,
       slug,
-      href: hrefForExternalId(item.externalId, slug),
+      href: hrefForProduct(id, item.externalId, slug),
       featuredImageUrl: getDerivedImageUrl(item.keyPhoto) ?? undefined,
       shortDescription: item.excerpt ? String(item.excerpt) : undefined,
       price: Number.isFinite(priceNum) ? priceNum : undefined,

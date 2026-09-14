@@ -39,9 +39,11 @@ any of them, so they are absent from every detail page and from the JSON-LD.
 - **Ski Touring Experience (Randonnée)** `1214082` — priced at **45,000 DKK**, roughly 30×
   every other adventure (next highest is 3,950). Typo, or a genuine private-charter rate?
 - **Illu Qoornoq** `1214071` — title still reads "(Coming Soon)". Publish, or exclude from
-  the sitemap until it is bookable?
+  the sitemap until it is bookable? The slug no longer contains "coming-soon", so the title
+  can be corrected in Bokun without breaking the URL.
 - **Illu Majuala** `1207621` — no Bokun field states its location. The brief's example slug
-  implies Kapisillit; unconfirmed, so the location is omitted from the slug and the page.
+  implies Kapisillit; unconfirmed, so the slug is `illu-majuala-cabin` with no place name.
+  Confirm the location and the slug can be changed (the old URL will redirect automatically).
 - **Race dates** — all three races are dated 2026 (Jul 2, Jul 24, Aug 22) and have passed.
   The homepage "Upcoming Expeditions" section filters to `date >= today` and is therefore
   **empty for all visitors**. It needs 2027 dates in Bokun.
