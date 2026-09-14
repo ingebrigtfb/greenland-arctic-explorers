@@ -1,12 +1,9 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
-import { useParams } from "next/navigation";
 import Script from "next/script";
 import Image from "next/image";
 import Link from "next/link";
-import { getItemBySlug } from "@/lib/content";
-import type { CollectionName } from "@/lib/content";
 import { MapPin, Clock, ArrowLeft, ArrowRight, Play, ChevronLeft, ChevronRight, X, FileText } from "lucide-react";
 
 const BOKUN_CHANNEL_UUID = "159bdf9f-bfe0-451a-8901-42c0293704e6";
@@ -93,22 +90,21 @@ function useParallax() {
 }
 
 interface ContentDetailPageProps {
-  collection: CollectionName;
+  /** Fetched on the server so the full record ships in the initial HTML. */
+  item: ItemDetail;
+  bokunId: string | null;
   label: string;
   labelPlural: string;
   backHref: string;
 }
 
 export default function ContentDetailPage({
-  collection,
+  item,
+  bokunId,
   label,
   labelPlural,
   backHref,
 }: ContentDetailPageProps) {
-  const { slug } = useParams<{ slug: string }>();
-  const [item, setItem] = useState<ItemDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [bokunId, setBokunId] = useState<string | null>(null);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
 
@@ -122,27 +118,6 @@ export default function ContentDetailPage({
     }
   }, []);
 
-  useEffect(() => {
-    if (!slug) return;
-
-    const bokunIdMatch = slug.match(/-(\d{5,})$/);
-
-    if (bokunIdMatch) {
-      const id = bokunIdMatch[1];
-      setBokunId(id);
-      fetch(`/api/bokun/activity/${encodeURIComponent(id)}`)
-        .then((r) => r.json())
-        .then((data) => setItem(data?.race ?? null))
-        .catch(() => {})
-        .finally(() => setLoading(false));
-      return;
-    }
-
-    getItemBySlug(collection, slug)
-      .then((r) => setItem(r as unknown as ItemDetail | null))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [slug, collection]);
 
   useEffect(() => {
     if (bokunId && item) {
@@ -168,7 +143,7 @@ export default function ContentDetailPage({
 
     function goToConfirmation(receiptUrl?: string) {
       const params = new URLSearchParams();
-      if (item!.title) params.set("tour", item!.title);
+      if (item.title) params.set("tour", item.title);
       if (receiptUrl) params.set("receipt", receiptUrl);
       window.location.href = `/booking/confirmation?${params.toString()}`;
     }
@@ -202,36 +177,6 @@ export default function ContentDetailPage({
       window.removeEventListener("message", onMessage);
     };
   }, [bookingOpen, item]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-arctic-navy">
-        <div className="h-screen animate-pulse bg-gradient-to-b from-arctic-navy to-glacier" />
-      </div>
-    );
-  }
-
-  if (!item) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-frost-light pt-32">
-        <div className="text-center">
-          <h1 className="mb-4 font-display text-3xl font-800 text-arctic-navy">
-            {label} not found
-          </h1>
-          <p className="mb-6 font-body text-stone">
-            The {label.toLowerCase()} you&apos;re looking for doesn&apos;t exist or has been removed.
-          </p>
-          <Link
-            href={backHref}
-            className="inline-flex items-center gap-2 rounded-xl bg-glacier px-6 py-3 font-heading text-sm font-600 text-white transition-colors hover:bg-polar-teal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glacier"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to all {labelPlural.toLowerCase()}
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <>

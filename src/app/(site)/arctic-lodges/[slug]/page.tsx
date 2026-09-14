@@ -1,9 +1,16 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import LodgeDetailPage from "@/components/LodgeDetailPage";
-import { getDetailMeta } from "@/lib/seo";
+import { getDetailMeta, getDetailItem, listCollectionSlugs } from "@/lib/seo";
 import { buildOpenGraph } from "@/lib/site-metadata";
 
 type Params = { slug: string };
+
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  return listCollectionSlugs("lodges");
+}
 
 export async function generateMetadata({
   params,
@@ -11,7 +18,7 @@ export async function generateMetadata({
   params: Promise<Params>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const meta = await getDetailMeta("lodges", slug);
+  const meta = await getDetailMeta(slug);
 
   if (!meta) {
     return { title: "Lodge Not Found" };
@@ -32,6 +39,10 @@ export async function generateMetadata({
   };
 }
 
-export default function LodgePage() {
-  return <LodgeDetailPage />;
+export default async function LodgePage({ params }: { params: Promise<Params> }) {
+  const { slug } = await params;
+  const lodge = await getDetailItem(slug);
+  if (!lodge) notFound();
+
+  return <LodgeDetailPage lodge={lodge} />;
 }

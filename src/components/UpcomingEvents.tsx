@@ -20,21 +20,11 @@ function formatPrice(price?: number) {
 
 const PAGE_SIZE = 3;
 
-export default function UpcomingEvents() {
+export default function UpcomingEvents({ events }: { events: BokunRaceCard[] }) {
   const sectionRef = useRef<HTMLElement>(null);
   const snowRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
-  const [events, setEvents] = useState<BokunRaceCard[]>([]);
-  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
-
-  useEffect(() => {
-    fetch("/api/bokun/upcoming")
-      .then((r) => r.json())
-      .then((data) => setEvents(data?.items ?? []))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -144,19 +134,8 @@ export default function UpcomingEvents() {
           )}
         </div>
 
-        {/* Loading skeleton */}
-        {loading && (
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.25fr_1fr]">
-            <div className="h-[500px] animate-pulse rounded-xl bg-white" />
-            <div className="flex flex-col gap-6">
-              <div className="h-[240px] animate-pulse rounded-xl bg-white" />
-              <div className="h-[240px] animate-pulse rounded-xl bg-white" />
-            </div>
-          </div>
-        )}
-
         {/* Asymmetric grid */}
-        {!loading && featured && (
+        {featured && (
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.25fr_1fr]">
             {/* Featured card */}
             <Link
@@ -310,7 +289,7 @@ export default function UpcomingEvents() {
           </div>
         )}
 
-        {!loading && !featured && (
+        {!featured && (
           <p className="py-12 text-center font-body text-stone">
             No upcoming expeditions right now. Check back soon.
           </p>

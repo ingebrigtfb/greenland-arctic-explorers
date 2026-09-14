@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import BokunEventCards from "@/components/BokunEventCards";
 import PageHero from "@/components/PageHero";
 import { buildOpenGraph } from "@/lib/site-metadata";
+import { listBokunTours } from "@/lib/bokun";
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Tours",
@@ -16,7 +19,9 @@ export const metadata: Metadata = {
   }),
 };
 
-export default function ToursPage() {
+export default async function ToursPage() {
+  const items = await listBokunTours();
+
   return (
     <section className="bg-frost-light pb-24">
       <PageHero
@@ -36,7 +41,7 @@ export default function ToursPage() {
           tag: "Expeditions · All itineraries",
           title: "Multi‑day journeys into the Arctic",
         }}
-        fetchUrl="/api/bokun/tours"
+        items={items}
         linkBase="/tours"
         emptyTitle="No upcoming tours"
         emptyDescription="Check back soon for new tour dates."

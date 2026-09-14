@@ -1,9 +1,16 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import ContentDetailPage from "@/components/ContentDetailPage";
-import { getDetailMeta } from "@/lib/seo";
+import { getDetailMeta, getDetailItem, listCollectionSlugs, extractBokunId } from "@/lib/seo";
 import { buildOpenGraph } from "@/lib/site-metadata";
 
 type Params = { slug: string };
+
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  return listCollectionSlugs("tours");
+}
 
 export async function generateMetadata({
   params,
@@ -11,7 +18,7 @@ export async function generateMetadata({
   params: Promise<Params>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const meta = await getDetailMeta("tours", slug);
+  const meta = await getDetailMeta(slug);
 
   if (!meta) {
     return { title: "Tour Not Found" };
@@ -32,10 +39,15 @@ export async function generateMetadata({
   };
 }
 
-export default function TourDetailPage() {
+export default async function TourDetailPage({ params }: { params: Promise<Params> }) {
+  const { slug } = await params;
+  const item = await getDetailItem(slug);
+  if (!item) notFound();
+
   return (
     <ContentDetailPage
-      collection="tours"
+      item={item}
+      bokunId={extractBokunId(slug)}
       label="Tour"
       labelPlural="Tours"
       backHref="/tours"

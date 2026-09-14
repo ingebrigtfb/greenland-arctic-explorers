@@ -5,6 +5,9 @@ import FeaturedTours from "@/components/FeaturedTours";
 import UpcomingEvents from "@/components/UpcomingEvents";
 import CTASection from "@/components/CTASection";
 import { buildOpenGraph } from "@/lib/site-metadata";
+import { listBokunUpcoming, listBokunLodges } from "@/lib/bokun";
+
+export const revalidate = 3600;
 
 const TITLE = "Greenland Arctic Tours & Expedition Adventures | Greenland Arctic Xplorers";
 const DESCRIPTION =
@@ -27,13 +30,18 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Home() {
+export default async function Home() {
+  const [events, lodges] = await Promise.all([
+    listBokunUpcoming(),
+    listBokunLodges(),
+  ]);
+
   return (
     <>
       <Hero />
-      <UpcomingEvents />
+      <UpcomingEvents events={events} />
       <ExploreTerritory />
-      <FeaturedTours />
+      <FeaturedTours lodges={lodges} />
       <CTASection />
     </>
   );

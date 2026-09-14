@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import BokunEventCards from "@/components/BokunEventCards";
 import PageHero from "@/components/PageHero";
 import { buildOpenGraph } from "@/lib/site-metadata";
+import { listBokunRaces } from "@/lib/bokun";
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Races",
@@ -18,7 +21,9 @@ export const metadata: Metadata = {
   }),
 };
 
-export default function RacesPage() {
+export default async function RacesPage() {
+  const items = await listBokunRaces();
+
   return (
     <section className="bg-frost-light pb-24">
       <PageHero
@@ -38,7 +43,7 @@ export default function RacesPage() {
           tag: "Upcoming · All events",
           title: "Find your start line",
         }}
-        fetchUrl="/api/bokun/races"
+        items={items}
         linkBase="/races"
         emptyTitle="No upcoming races"
         emptyDescription="Check back soon for new events."

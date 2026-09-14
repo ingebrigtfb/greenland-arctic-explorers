@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import BokunEventCards from "@/components/BokunEventCards";
 import PageHero from "@/components/PageHero";
 import { buildOpenGraph } from "@/lib/site-metadata";
+import { listBokunActivities } from "@/lib/bokun";
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Adventures",
@@ -16,7 +19,9 @@ export const metadata: Metadata = {
   }),
 };
 
-export default function ActivitiesPage() {
+export default async function ActivitiesPage() {
+  const items = await listBokunActivities();
+
   return (
     <section className="bg-frost-light pb-24">
       <PageHero
@@ -36,7 +41,7 @@ export default function ActivitiesPage() {
           tag: "Browse · All experiences",
           title: "Pick your Arctic moment",
         }}
-        fetchUrl="/api/bokun/adventures"
+        items={items}
         linkBase="/adventures"
         emptyTitle="No upcoming adventures"
         emptyDescription="Check back soon for new adventure dates."

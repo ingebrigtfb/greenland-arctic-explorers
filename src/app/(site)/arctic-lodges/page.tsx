@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import BokunEventCards from "@/components/BokunEventCards";
 import PageHero from "@/components/PageHero";
 import { buildOpenGraph } from "@/lib/site-metadata";
+import { listBokunLodges } from "@/lib/bokun";
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Arctic Lodges",
@@ -16,7 +19,9 @@ export const metadata: Metadata = {
   }),
 };
 
-export default function ArcticLodgesPage() {
+export default async function ArcticLodgesPage() {
+  const items = await listBokunLodges();
+
   return (
     <section className="bg-frost-light pb-24">
       <PageHero
@@ -36,7 +41,7 @@ export default function ArcticLodgesPage() {
           tag: "Stay · All lodges",
           title: "Find your Arctic base camp",
         }}
-        fetchUrl="/api/bokun/lodges"
+        items={items}
         linkBase="/arctic-lodges"
         emptyTitle="No upcoming lodges"
         emptyDescription="Check back soon for new lodge availability."

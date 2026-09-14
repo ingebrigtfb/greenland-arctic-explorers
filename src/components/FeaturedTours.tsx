@@ -6,19 +6,9 @@ import Link from "next/link";
 import { ArrowRight, Home } from "lucide-react";
 import type { BokunRaceCard } from "@/lib/bokun";
 
-export default function FeaturedTours() {
+export default function FeaturedTours({ lodges }: { lodges: BokunRaceCard[] }) {
   const sectionRef = useRef<HTMLElement>(null);
   const [visible, setVisible] = useState(false);
-  const [lodges, setLodges] = useState<BokunRaceCard[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("/api/bokun/lodges")
-      .then(r => r.json())
-      .then(data => setLodges(data?.items ?? []))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -62,14 +52,7 @@ export default function FeaturedTours() {
 
         {/* Card grid */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-          {loading
-            ? [1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="h-96 animate-pulse rounded-xl bg-frost-light"
-                />
-              ))
-            : lodges.map((lodge, i) => (
+          {lodges.map((lodge, i) => (
                 <Link
                   key={lodge.id}
                   href={`/arctic-lodges/${lodge.slug ?? lodge.id}`}

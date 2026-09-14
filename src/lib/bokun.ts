@@ -98,6 +98,11 @@ function bokunBaseUrl() {
   return process.env.BOKUN_API_BASE_URL ?? "https://api.bokun.io";
 }
 
+// Catalogue data changes rarely; cache it so listing and detail pages can be
+// statically generated and revalidated on a schedule rather than hit Bokun per request.
+const REVALIDATE_SECONDS = Number(process.env.BOKUN_REVALIDATE_SECONDS ?? "3600");
+const bokunCache = { next: { revalidate: REVALIDATE_SECONDS } } as const;
+
 type BokunDerivedUrls = {
   large?: { cleanUrl?: string | null } | null;
   preview?: { cleanUrl?: string | null } | null;
@@ -152,6 +157,21 @@ export async function listBokunLodges(): Promise<BokunRaceCard[]> {
   return listBokunByProductCode("lodge", "arctic-lodges");
 }
 
+/** Every dated product across all four collections, soonest first. */
+export async function listBokunUpcoming(): Promise<BokunRaceCard[]> {
+  const today = new Date().toISOString().slice(0, 10);
+  const results = await Promise.allSettled([
+    listBokunRaces(),
+    listBokunTours(),
+    listBokunActivities(),
+    listBokunLodges(),
+  ]);
+  return results
+    .flatMap((r) => (r.status === "fulfilled" ? r.value : []))
+    .filter((item) => item.date && item.date >= today)
+    .sort((a, b) => (a.date ?? "").localeCompare(b.date ?? ""));
+}
+
 function matchesProductCode(externalId: unknown, productCode: string) {
   const code = productCode.trim().toLowerCase();
   if (!code) return false;
@@ -171,6 +191,7 @@ async function listBokunByProductCode(productCode: string, collection: string): 
 
   const res = await fetch(bokunBaseUrl() + pathWithQuery, {
     method: "POST",
+    ...bokunCache,
     headers: {
       "Content-Type": "application/json;charset=UTF-8",
       "X-Bokun-Date": dateStr,
@@ -271,6 +292,7 @@ export async function listBokunMapPoints(): Promise<BokunMapPoint[]> {
 
   const res = await fetch(bokunBaseUrl() + pathWithQuery, {
     method: "POST",
+    ...bokunCache,
     headers: {
       "Content-Type": "application/json;charset=UTF-8",
       "X-Bokun-Date": dateStr,
@@ -327,6 +349,7 @@ export async function listBokunMapPoints(): Promise<BokunMapPoint[]> {
       const sig = signRequest({ method: "GET", pathWithQuery: detailPath, dateStr: ds });
       const dr = await fetch(bokunBaseUrl() + detailPath, {
         method: "GET",
+        ...bokunCache,
         headers: { "X-Bokun-Date": ds, "X-Bokun-AccessKey": getRequiredEnv("BOKUN_ACCESS_KEY"), "X-Bokun-Signature": sig },
       });
       if (!dr.ok) return;
@@ -407,6 +430,7 @@ export async function getBokunRaceDetail(id: string): Promise<BokunRaceDetail> {
 
   const res = await fetch(bokunBaseUrl() + pathWithQuery, {
     method: "GET",
+    ...bokunCache,
     headers: {
       "X-Bokun-Date": dateStr,
       "X-Bokun-AccessKey": getRequiredEnv("BOKUN_ACCESS_KEY"),
@@ -422,9 +446,12 @@ export async function getBokunRaceDetail(id: string): Promise<BokunRaceDetail> {
   type BokunLocationCode = { location?: string | null } | null | undefined;
   type BokunVideo = { url?: string | null; sourceUrl?: string | null; videoUrl?: string | null; youtubeUrl?: string | null };
   type BokunKeyValue = { label?: string | null; value?: string | null };
+  type BokunMoney = { amount?: number | null; currency?: string | null } | null;
   type BokunActivityDetail = {
     id?: string | number | null;
     title?: string | null;
+    nextDefaultPrice?: number | string | null;
+    nextDefaultPriceMoney?: BokunMoney;
     excerpt?: string | null;
     description?: string | null;
     publicNotes?: string | null;
@@ -461,6 +488,19 @@ export async function getBokunRaceDetail(id: string): Promise<BokunRaceDetail> {
     return undefined;
   }
 
+  function resolvePrice(): number | undefined {
+    const candidates = [
+      item.nextDefaultPriceMoney?.amount,
+      item.nextDefaultPrice,
+      item.price,
+    ];
+    for (const c of candidates) {
+      const n = typeof c === "number" ? c : Number(c);
+      if (Number.isFinite(n) && n > 0) return n;
+    }
+    return undefined;
+  }
+
   function resolveKnowBeforeYouGo(): string | undefined {
     // Prefer structured keyValues (Bokun "Know before you go" key-value pairs)
     if (Array.isArray(item.keyValues) && item.keyValues.length > 0) {
@@ -486,11 +526,11 @@ export async function getBokunRaceDetail(id: string): Promise<BokunRaceDetail> {
     knowBeforeYouGo: resolveKnowBeforeYouGo(),
     featuredImage: mapBokunPhoto(item.keyPhoto),
     gallery: galleryPhotos,
-    price: typeof item.price === "number" ? item.price : Number(item.price),
+    price: resolvePrice(),
     duration: item.durationText ? String(item.durationText) : undefined,
     location: item.locationCode?.location ? String(item.locationCode.location) : undefined,
     meetingPoint: item.startAddress ? String(item.startAddress) : item.meetingPoint ? String(item.meetingPoint) : undefined,
-    date: undefined,
+    date: extractDateFromTitle(String(item.title ?? "")),
     videoUrl: resolveVideoUrl(),
     source: "bokun",
   };

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import Image from "next/image";
 import Link from "next/link";
@@ -38,52 +37,13 @@ function getEmbedUrl(url?: string): string | null {
   return null;
 }
 
-export default function LodgeDetailPage() {
-  const { slug } = useParams<{ slug: string }>();
-  const [lodge, setLodge] = useState<Lodge | null>(null);
-  const [loading, setLoading] = useState(true);
+export default function LodgeDetailPage({ lodge }: { lodge: Lodge }) {
   const [lightbox, setLightbox] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (!slug) return;
-    const match = slug.match(/-(\d{5,})$/);
-    if (match) {
-      const id = match[1];
-      fetch(`/api/bokun/activity/${encodeURIComponent(id)}`)
-        .then(r => r.json())
-        .then(data => setLodge(data?.race ?? null))
-        .catch(() => {})
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
-    }
-  }, [slug]);
 
   useEffect(() => {
     document.body.style.overflow = lightbox !== null ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [lightbox]);
-
-  if (loading) return (
-    <div className="min-h-screen bg-frost-light pt-24">
-      <div className="mx-auto max-w-[1280px] px-6 lg:px-12">
-        <div className="h-8 w-40 animate-pulse rounded-lg bg-mist mb-8" />
-        <div className="h-10 w-2/3 animate-pulse rounded-lg bg-mist mb-4" />
-        <div className="h-[500px] animate-pulse rounded-2xl bg-mist mt-8" />
-      </div>
-    </div>
-  );
-
-  if (!lodge) return (
-    <div className="flex min-h-screen items-center justify-center bg-frost-light pt-32">
-      <div className="text-center">
-        <h1 className="mb-4 font-display text-3xl font-800 text-arctic-navy">Lodge not found</h1>
-        <Link href="/arctic-lodges" className="inline-flex items-center gap-2 rounded-xl bg-glacier px-6 py-3 font-heading text-sm font-600 text-white hover:bg-polar-teal">
-          <ArrowLeft className="h-4 w-4" /> All Arctic Lodges
-        </Link>
-      </div>
-    </div>
-  );
 
   const allPhotos: GalleryImage[] = [
     ...(lodge.featuredImage ? [{ url: lodge.featuredImage.url, alt: lodge.title }] : []),
