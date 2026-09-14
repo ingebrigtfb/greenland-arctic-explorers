@@ -42,12 +42,12 @@ export default function FeaturedTours({ lodges }: { lodges: BokunRaceCard[] }) {
               Arctic Lodges for Rent
             </h2>
           </div>
-          <a
+          <Link
             href="/arctic-lodges"
             className="inline-flex self-start rounded-lg border-2 border-glacier px-5 py-2.5 font-heading text-xs font-600 uppercase tracking-wider text-glacier transition-all hover:bg-glacier hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glacier sm:self-auto"
           >
             View All Lodges
-          </a>
+          </Link>
         </div>
 
         {/* Card grid */}

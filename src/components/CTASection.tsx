@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function CTASection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -57,18 +58,18 @@ export default function CTASection() {
           Small groups, expert guides, unforgettable experiences.
         </p>
         <div className="flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:justify-center">
-          <a
+          <Link
             href="/tours"
             className="flex justify-center rounded-xl bg-glacier px-8 py-3.5 font-heading text-sm font-600 tracking-wider text-white transition-all duration-200 hover:bg-polar-teal active:scale-[0.98]"
           >
             Browse Expeditions
-          </a>
-          <a
+          </Link>
+          <Link
             href="/contact-us"
             className="flex justify-center rounded-xl border-2 border-white/25 px-8 py-3.5 font-heading text-sm font-600 tracking-wider text-white transition-all duration-200 hover:border-white/50 hover:bg-white/10"
           >
             Contact Us
-          </a>
+          </Link>
         </div>
       </div>
     </section>
