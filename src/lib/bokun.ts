@@ -107,8 +107,13 @@ function bokunBaseUrl() {
 
 // Catalogue data changes rarely; cache it so listing and detail pages can be
 // statically generated and revalidated on a schedule rather than hit Bokun per request.
+// Every Bokun fetch carries BOKUN_CACHE_TAG so /api/revalidate can purge them all
+// at once after an edit in Bokun, instead of waiting out the schedule.
 const REVALIDATE_SECONDS = Number(process.env.BOKUN_REVALIDATE_SECONDS ?? "3600");
-const bokunCache = { next: { revalidate: REVALIDATE_SECONDS } } as const;
+export const BOKUN_CACHE_TAG = "bokun";
+const bokunCache: Pick<RequestInit, "next"> = {
+  next: { revalidate: REVALIDATE_SECONDS, tags: [BOKUN_CACHE_TAG] },
+};
 
 type BokunDerivedUrls = {
   large?: { cleanUrl?: string | null } | null;
